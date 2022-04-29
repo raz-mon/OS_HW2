@@ -1,13 +1,16 @@
 #include "kernel/types.h"
 #include "kernel/stat.h"
 #include "user/user.h"
-#include "kernel/defs.h"
 
 int main(int argc, char *argv[]){
-    int n = 5;
-    for (int i = 0; i < n; i++){
-        fork();   
-    }
+    
+    int n = 3;
     // Print all pid's, make sure none of them repeat.
-    printf("pid: %d", myproc()->pid);
+    for (int i = 0; i < n; i++){
+        if (fork() == 0){
+            printf("pid: %d\n", getpid());       
+        }
+    }
+    
+    return 1;
 }
