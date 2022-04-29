@@ -26,6 +26,10 @@ extern char trampoline[]; // trampoline.S
 // must be acquired before any p->lock.
 struct spinlock wait_lock;
 
+// Added:
+// cas function - Atomic Compare And Swap.
+extern int cas(volatile void *add, int expected, int newval);
+
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
 // guard page.
@@ -89,12 +93,21 @@ int
 allocpid() {
   int pid;
   
+  // new implementation (using cas).
+  int old;
+  do{
+    old = nextpid;
+  } while (cas(&nextpid, old, old+1));
+  return old;
+
+/*
+  // old implementation (using pidlock).
   acquire(&pid_lock);
   pid = nextpid;
   nextpid = nextpid + 1;
   release(&pid_lock);
-
   return pid;
+*/
 }
 
 // Look in the process table for an UNUSED proc.
