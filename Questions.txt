@@ -1,0 +1,4 @@
+Make sure we implemented the following correct:
+    - Implementation of allocpid (cas instead of pidlock).
+    - Implementation of the CAS function (assembly, in cas.S).
+    - Implementation of Linked-List.
