@@ -10,4 +10,5 @@ int main(int argc, char *argv[]){
     }
     // Print all pid's, make sure none of them repeat.
     printf("pid: %d", myproc()->pid);
+    return 0;
 }

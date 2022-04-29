@@ -28,7 +28,7 @@ struct spinlock wait_lock;
 
 // Added:
 // cas function - Atomic Compare And Swap.
-extern int cas(volatile void *add, int expected, int newval);
+extern uint64 cas(volatile void *add, int expected, int newval);
 
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
@@ -91,8 +91,6 @@ myproc(void) {
 
 int
 allocpid() {
-  int pid;
-  
   // new implementation (using cas).
   int old;
   do{
