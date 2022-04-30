@@ -30,6 +30,62 @@ struct spinlock wait_lock;
 // cas function - Atomic Compare And Swap.
 extern uint64 cas(volatile void *add, int expected, int newval);
 
+// Added: 
+// The linked-list struct, and methods for inserting and removing an element (inserting to the beginning, removing
+// from the end - as a queue)
+struct Node {
+  struct proc *p;
+  struct Node *next;
+}
+
+// Allocate a new node for a process.
+struct Node * allocNode(struct proc *p, struct Node *next) {
+  struct Node *newNode = (struct Node*)malloc(sizeof(struct Node));
+  newNode->p = p;
+  newNode->next = next;
+  return newNode;
+}
+
+struct Node * search_list(struct Node *list, int pid){
+  struct Node *temp = list;
+  while (!temp == NULL){
+    if (temp->p->pid == pid){
+      return temp;
+    }
+  }
+  return NULL;
+}
+
+void printList(struct Node *list){
+  struct Node *temp = list;
+  while (!temp == NULL){
+    printf("%d, ", temp->p->pid);
+  }
+}
+
+void addLink(struct Node *list, struct Node *node){
+  if (list == NULL){    // Empty list --> list has node only --> list = node.
+    list = node;
+  }
+  // Non-empty list --> Add node to the end of the list.
+  struct Node *temp = list;
+  while (!temp->next == NULL){
+    temp = temp->next;
+  }
+  temp->next = node;
+}
+
+struct Node* removeLink(struct Node *list){
+  if (list == NULL){
+    return NULL;
+  }
+  struct Node* temp = list;
+  list = list->next;
+  temp->next = NULL;        // So it is no longer connected to other links.
+  return temp;
+}
+
+
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
 // guard page.
