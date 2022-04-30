@@ -40,11 +40,7 @@ struct Node {
   struct proc *p;
   struct Node *next;
 };
-<<<<<<< HEAD
-
-=======
 /*
->>>>>>> dfb1cb6051c76a461823b059eb7da42a7419ad30
 // Allocate a new node for a process.
 struct Node* allocNode(struct proc *p, struct Node *next) {
   struct Node *newNode = (struct Node*)malloc(sizeof(struct Node));
