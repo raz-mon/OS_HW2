@@ -91,7 +91,7 @@ myproc(void) {
 
 int
 allocpid() {
-  int pid;
+  // int pid;
   
   // new implementation (using cas).
   int old;
