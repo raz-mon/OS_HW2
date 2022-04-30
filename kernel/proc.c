@@ -684,7 +684,7 @@ set_cpu(int cpu_num)
 // Get the cpu of the current process.
 // Return cpu_num if successive, and a negative number otherwise.
 int
-set_cpu(int cpu_num)
+get_cpu(void)
 {
   struct proc *p = myproc();
   return p->cpu_num;

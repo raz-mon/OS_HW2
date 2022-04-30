@@ -115,7 +115,7 @@ sys_set_cpu(void)
 // Get the cpu of a process to the first argument (int).
 // Return the cpu number is successive, and a negative one otherwise.
 uint64
-sys_set_cpu(void)
+sys_get_cpu(void)
 {
   return get_cpu();
 }
