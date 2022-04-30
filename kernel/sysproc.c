@@ -95,3 +95,31 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+
+// Added:
+
+// Perform check_LL syscall, which performs check_LL function (in proc.c).
+uint64
+sys_check_LL(void)
+{
+  check_LL();
+  return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

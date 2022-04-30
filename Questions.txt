@@ -2,3 +2,14 @@ Make sure we implemented the following correct:
     - Implementation of allocpid (cas instead of pidlock).
     - Implementation of the CAS function (assembly, in cas.S).
     - Implementation of Linked-List.
+    - If we want to introduce NULL (=0) to the program, where is it best to do so? (At proc.c at the moment).
+    - In page 4, in the linked-list implementation sector, what is the meaning of:
+        "In addition, since your CAS implementation is for int (32 bit) and
+        not uint64, you can’t use it for pointers (as those are uint64 in Xv6). Thus, your linked list implementation
+        will have to refer to the next link by using indices rather then pointer."
+        ??
+      Does this mean that the 'data' field of each link is an index of the process in the proc structure (array of 
+      struct proc)?
+    - 
+
+
