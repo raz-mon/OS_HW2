@@ -6,6 +6,9 @@
 #include "proc.h"
 #include "defs.h"
 
+// Added (should this be here, or better in defs for example?):
+#define NULL 0
+
 struct cpu cpus[NCPU];
 
 struct proc proc[NPROC];
@@ -37,16 +40,21 @@ struct Node {
   struct proc *p;
   struct Node *next;
 };
+<<<<<<< HEAD
 
+=======
+/*
+>>>>>>> dfb1cb6051c76a461823b059eb7da42a7419ad30
 // Allocate a new node for a process.
-struct Node * allocNode(struct proc *p, struct Node *next) {
+struct Node* allocNode(struct proc *p, struct Node *next) {
   struct Node *newNode = (struct Node*)malloc(sizeof(struct Node));
   newNode->p = p;
   newNode->next = next;
   return newNode;
 }
+*/
 
-struct Node * search_list(struct Node *list, int pid){
+struct Node* search_list(struct Node *list, int pid){
   struct Node *temp = list;
   while (!temp == NULL){
     if (temp->p->pid == pid){
@@ -663,6 +671,15 @@ kill(int pid)
     release(&p->lock);
   }
   return -1;
+}
+
+// Added:
+
+// Check the LinkedList implementation
+void
+check_LL(void)
+{
+  printf("checking LL implementation...\n");
 }
 
 // Copy to either a user address, or kernel address,
