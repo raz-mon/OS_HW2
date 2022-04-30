@@ -10,6 +10,6 @@ Make sure we implemented the following correct:
         ??
       Does this mean that the 'data' field of each link is an index of the process in the proc structure (array of 
       struct proc)?
-    - ttt
+    - tttt
 
 
