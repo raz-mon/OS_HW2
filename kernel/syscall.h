@@ -22,5 +22,7 @@
 #define SYS_close  21
 
 // Added:
-#define SYS_check_LL 22
+#define SYS_set_cpu 22
+#define SYS_get_cpu 23
+#define SYS_check_LL 24
 

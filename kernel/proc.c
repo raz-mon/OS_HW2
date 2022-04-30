@@ -671,12 +671,34 @@ kill(int pid)
 
 // Added:
 
+// Set the cpu of the current process to cpu_num (first argument).
+// Return cpu_num if successive, and a negative number otherwise.
+int
+set_cpu(int cpu_num)
+{
+  struct proc *p = myproc();
+  p->cpu_num = cpu_num;
+  return cpu_num;
+}
+
+// Get the cpu of the current process.
+// Return cpu_num if successive, and a negative number otherwise.
+int
+set_cpu(int cpu_num)
+{
+  struct proc *p = myproc();
+  return p->cpu_num;
+}
+
 // Check the LinkedList implementation
 void
 check_LL(void)
 {
   printf("checking LL implementation...\n");
 }
+
+// End of addition.
+
 
 // Copy to either a user address, or kernel address,
 // depending on usr_dst.

@@ -104,6 +104,10 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
+
+// Added:
+extern uint64 sys_set_cpu(void);
+extern uint64 sys_get_cpu(void);
 extern uint64 sys_check_LL(void);
 
 static uint64 (*syscalls[])(void) = {
@@ -128,6 +132,8 @@ static uint64 (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_set_cpu] sys_set_cpu,
+[SYS_get_cpu] sys_get_cpu,
 [SYS_check_LL] sys_check_LL,
 };
 

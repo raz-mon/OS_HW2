@@ -9,7 +9,11 @@ Make sure we implemented the following correct:
         will have to refer to the next link by using indices rather then pointer."
         ??
       Does this mean that the 'data' field of each link is an index of the process in the proc structure (array of 
-      struct proc)?
+      struct proc)? Or does it refer to the 'next' field in each link in the linked-list?
     - Where should we put the linked-lists? How should we initialize them?
+    - How do we use cas in order to ensure safe manipulation of the lists?
+    - Are we to put a list in the cpu struct? (So that each cpu has a list).
+    
+
 
 
