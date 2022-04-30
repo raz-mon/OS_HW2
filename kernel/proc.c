@@ -36,7 +36,7 @@ extern uint64 cas(volatile void *add, int expected, int newval);
 struct Node {
   struct proc *p;
   struct Node *next;
-}
+};
 
 // Allocate a new node for a process.
 struct Node * allocNode(struct proc *p, struct Node *next) {
