@@ -81,11 +81,16 @@ int get_ind(struct proc* pr){
   return ind;
 }
 
+int getNext(int ind){
+  // ADD SOME SYNCHRONIZATION METHOD.
+  return proc[ind].next;
+}
+
 // Search a list for an index (a process).
 // If it exists in the list, return the index (which was passed as a parameter). Else --> Return -1.
-struct Node* search_list(int *first, int ind){
+int search_list(int *first, int ind){
   int temp = *first;
-  while (!temp == -1){
+  while (temp != -1){
     if (temp == ind){
       return temp;
     }
@@ -94,10 +99,6 @@ struct Node* search_list(int *first, int ind){
   return -1;
 }
 
-int getNext(int ind){
-  // ADD SOME SYNCHRONIZATION METHOD.
-  return proc[ind].next;
-}
 
 // Set next field of a process (in PCB).
 void setNext(int ind, int next){
@@ -106,7 +107,7 @@ void setNext(int ind, int next){
 
 void printList(int *first){
   int temp = *first;
-  while (!temp == -1){
+  while (temp != -1){
     printf("%d, ", temp);
     temp = getNext(temp);
   }
@@ -128,15 +129,17 @@ void addLink(struct Node *list, struct Node *node){
 
 // Add a link to a "linked-list".
 // If successful, return the added index ("link"). Else --> Return -1.
-int addLink(int *first, int to_add){
-  while (proc[*first].next != -1)
-    first = proc[*first].next;
-  proc[*first].next = to_add;
+void addLink(int *first, int to_add){
+  int temp = *first;
+  while (proc[temp].next != -1)
+    temp = proc[temp].next;
+  // ADD SYNCHRONIZATION?????????????????????????????????????????????????????????????????????? I think so.
+  proc[temp].next = to_add;
 }
 
 // Remove the first "link" of the linked-list.
 // Return the value of the first "link".
-struct Node* removeFirst(int *first_p){
+int removeFirst(int *first_p){
   if (*first_p == -1){
     return -1;
   }
