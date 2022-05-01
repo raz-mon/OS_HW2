@@ -33,14 +33,21 @@ struct spinlock wait_lock;
 // cas function - Atomic Compare And Swap.
 extern uint64 cas(volatile void *add, int expected, int newval);
 
+// Three global lists (linked-lists. Their value is the index of the first process in the linked-list in the proc_table).
+// Value of -1 is equivalent to NULL (empty linked list).
+int sleeping = -1;
+int zombie = -1;
+int unused = -1;
+
 // Added: 
 // The linked-list struct, and methods for inserting and removing an element (inserting to the beginning, removing
 // from the end - as a queue)
-struct Node {
-  // struct proc *p;
-  int p_ind;           // The proc this node holds' index in the proc table (array).
-  struct Node *next;  // Next node in linked-list.
-};
+//struct Node {
+// struct proc *p;
+//  int p_ind;           // The proc this node holds' index in the proc table (array).
+//  struct Node *next;  // Next node in linked-list.
+//};
+
 /*
 // Allocate a new node for a process.
 struct Node* allocNode(struct proc *p, struct Node *next) {
@@ -56,7 +63,7 @@ int int_lock = 0;
 int get_ind(struct proc* pr){
   while (!cas(&int_lock, 0, 1))
     ;;
-  // Now the one cpu that has changed the int_lock is in the CS
+  // Now the one cpu that has changed the int_lock is in the CS.
 
   struct proc* p;
   int ind = 0;
@@ -74,24 +81,38 @@ int get_ind(struct proc* pr){
   return ind;
 }
 
-struct Node* search_list(struct Node *list, int ind){
-  struct Node *temp = list;
-  while (!temp == NULL){
-    if (temp->p_ind == ind){
+// Search a list for an index (a process).
+// If it exists in the list, return the index (which was passed as a parameter). Else --> Return -1.
+int search_list(int first, int ind){
+  int temp = first;
+  while (!(temp == -1)){
+    if (temp == ind){
       return temp;
     }
-    temp = temp->next;
+    temp = getNext(temp);
   }
-  return NULL;
+  return -1;
 }
 
-void printList(struct Node *list){
-  struct Node *temp = list;
-  while (!temp == NULL){
-    printf("%d, ", temp->p_ind);
+int getNext(int ind){
+  // ADD SOME SYNCHRONIZATION METHOD.
+  return proc[ind].next;
+}
+
+// Set next field of a process (in PCB).
+void setNext(int ind, int next){
+  proc[ind].next = next;
+}
+
+void printList(int first){
+  int temp = first;
+  while (!(temp == -1)){
+    printf("%d, ", temp);
+    temp = getNext(temp);
   }
 }
 
+/*
 void addLink(struct Node *list, struct Node *node){
   if (list == NULL){    // Empty list --> list has node only --> list = node.
     list = node;
@@ -103,32 +124,28 @@ void addLink(struct Node *list, struct Node *node){
   }
   temp->next = node;
 }
-
-/*
-struct Node* removeLink(struct Node *list){
-  if (list == NULL){
-    return NULL;
-  }
-  struct Node* temp = list;
-  list = list->next;
-  temp->next = NULL;        // So it is no longer connected to other links.
-  return temp;
-}
 */
 
-struct Node* removeLink(struct Node *list, int ind){
-  if (list->p_ind == ind)
-    return list;
-  struct Node *prior = list;
-  struct Node *curr = list->next;
-  while (!curr == NULL){
-    if (curr->p_ind == ind){
-      prior->next = curr->next;
-      return curr;
-    }
-    curr = curr->next;
+// Add a link to a "linked-list".
+// If successful, return the added index ("link"). Else --> Return -1.
+int addLink(int first, int to_add){
+  while (proc[first].next != -1)
+    first = proc[first].next;
+  // Add Syncronizetion
+  proc[first].next = to_add;
+  return first;
+}
+
+// Remove the first "link" of the linked-list.
+// Return the value of the first "link".
+int removeFirst(int first_p){
+  if (first_p == -1){
+    return -1;
   }
-  return NULL;
+  int ret = first_p;
+  int next = getNext(first_p);
+  setNext(first_p, next);
+  return ret;
 }
 
 // Allocate a page for each process's kernel stack.
