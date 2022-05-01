@@ -105,6 +105,20 @@ struct Node* removeLink(struct Node *list){
   return temp;
 }
 
+struct Node* removeLink(struct Node *list, int ind){
+  if (list->p_ind == ind)
+    return list;
+  struct Node *prior = list;
+  struct Node *curr = list->next;
+  while (!curr == NULL){
+    if (curr->p_ind == ind){
+      prior->next = curr->next;
+      return curr;
+    }
+    curr = curr->next;
+  }
+  return NULL;
+}
 
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
