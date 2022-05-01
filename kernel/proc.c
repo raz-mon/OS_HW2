@@ -91,6 +91,11 @@ myproc(void) {
 
 int
 allocpid() {
+<<<<<<< HEAD
+=======
+  // int pid;
+  
+>>>>>>> 308418d31d8c73ef794d76447f99aa44ac4f2159
   // new implementation (using cas).
   int old;
   do{
