@@ -37,8 +37,9 @@ extern uint64 cas(volatile void *add, int expected, int newval);
 // The linked-list struct, and methods for inserting and removing an element (inserting to the beginning, removing
 // from the end - as a queue)
 struct Node {
-  struct proc *p;
-  struct Node *next;
+  // struct proc *p;
+  int p_ind;           // The proc this node holds' index in the proc table (array).
+  struct Node *next;  // Next node in linked-list.
 };
 /*
 // Allocate a new node for a process.
@@ -50,12 +51,27 @@ struct Node* allocNode(struct proc *p, struct Node *next) {
 }
 */
 
-struct Node* search_list(struct Node *list, int pid){
+int get_ind(struct proc* pr){
+  struct proc* p;
+  int ind = 0;
+  for(p = proc; p < &proc[NPROC]; p++) {
+      acquire(&p->lock);
+      if (p == pr){
+        return ind;
+      }
+      ind++;
+      release(&p->lock);
+    }
+  return ind;
+}
+
+struct Node* search_list(struct Node *list, int ind){
   struct Node *temp = list;
   while (!temp == NULL){
-    if (temp->p->pid == pid){
+    if (temp->p_ind == ind){
       return temp;
     }
+    temp = temp->next;
   }
   return NULL;
 }
@@ -63,7 +79,7 @@ struct Node* search_list(struct Node *list, int pid){
 void printList(struct Node *list){
   struct Node *temp = list;
   while (!temp == NULL){
-    printf("%d, ", temp->p->pid);
+    printf("%d, ", temp->p_ind);
   }
 }
 
