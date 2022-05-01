@@ -81,6 +81,11 @@ int get_ind(struct proc* pr){
   return ind;
 }
 
+int getNext(int ind){
+  // ADD SOME SYNCHRONIZATION METHOD.
+  return proc[ind].next;
+}
+
 // Search a list for an index (a process).
 // If it exists in the list, return the index (which was passed as a parameter). Else --> Return -1.
 int search_list(int first, int ind){
@@ -94,10 +99,6 @@ int search_list(int first, int ind){
   return -1;
 }
 
-int getNext(int ind){
-  // ADD SOME SYNCHRONIZATION METHOD.
-  return proc[ind].next;
-}
 
 // Set next field of a process (in PCB).
 void setNext(int ind, int next){
