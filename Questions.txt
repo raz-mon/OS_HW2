@@ -13,6 +13,9 @@ Make sure we implemented the following correct:
     - Where should we put the linked-lists? How should we initialize them?
     - How do we use cas in order to ensure safe manipulation of the lists?
     - Are we to put a list in the cpu struct? (So that each cpu has a list).
+    - Using cas to synchronize - implementation - see get_ind in proc.c.. Problem - we need allot of locks like this 
+      so they don't all use the same on (different functions - different locks). Doesn't make too much sense..?
+    
     
 
 

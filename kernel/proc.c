@@ -51,17 +51,26 @@ struct Node* allocNode(struct proc *p, struct Node *next) {
 }
 */
 
+int int_lock = 0;
+
 int get_ind(struct proc* pr){
+  while (!cas(&int_lock, 0, 1))
+    ;;
+  // Now the one cpu that has changed the int_lock is in the CS
+
   struct proc* p;
   int ind = 0;
   for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if (p == pr){
+        release(&p->lock);      // Release lock.
+        cas(&int_lock, 1, 0);   // Release the lock.
         return ind;
       }
       ind++;
-      release(&p->lock);
+      release(&p->lock);        // Release lock.
     }
+  cas(&int_lock, 1, 0);   // Release the lock.
   return ind;
 }
 
