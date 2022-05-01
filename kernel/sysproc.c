@@ -95,3 +95,51 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+
+
+// Added:
+
+// Set the cpu of a process to the first argument (int).
+// Return the cpu number is successive, and a negative one otherwise.
+uint64
+sys_set_cpu(void)
+{
+  int cpu_num;
+
+  if(argint(0, &cpu_num) < 0)
+    return -1;
+  return set_cpu(cpu_num);
+}
+
+// Get the cpu of a process to the first argument (int).
+// Return the cpu number is successive, and a negative one otherwise.
+uint64
+sys_get_cpu(void)
+{
+  return get_cpu();
+}
+
+// Perform check_LL syscall, which performs check_LL function (in proc.c).
+uint64
+sys_check_LL(void)
+{
+  check_LL();
+  return 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

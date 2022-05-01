@@ -36,3 +36,8 @@ entry("getpid");
 entry("sbrk");
 entry("sleep");
 entry("uptime");
+
+# Added:
+entry("set_cpu");
+entry("get_cpu");
+entry("check_LL");

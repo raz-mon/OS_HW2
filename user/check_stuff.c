@@ -4,13 +4,19 @@
 
 int main(int argc, char *argv[]){
     
-    int n = 3;
+    check_LL();
+    return 1;
+    
+    /*
+    // Check the cas functionality (no two processes with the same pid).
+    int n = 4;
     // Print all pid's, make sure none of them repeat.
     for (int i = 0; i < n; i++){
         if (fork() == 0){
             printf("pid: %d\n", getpid());       
         }
     }
+<<<<<<< HEAD:user/check_cas.c
 <<<<<<< HEAD
     // Print all pid's, make sure none of them repeat.
     printf("pid: %d", myproc()->pid);
@@ -19,4 +25,6 @@ int main(int argc, char *argv[]){
     
     return 1;
 >>>>>>> 308418d31d8c73ef794d76447f99aa44ac4f2159
+=======
+    */
 }

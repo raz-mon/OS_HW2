@@ -20,3 +20,9 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+
+// Added:
+#define SYS_set_cpu 22
+#define SYS_get_cpu 23
+#define SYS_check_LL 24
+
