@@ -104,6 +104,7 @@ void addLink(struct Node *list, struct Node *node){
   temp->next = node;
 }
 
+/*
 struct Node* removeLink(struct Node *list){
   if (list == NULL){
     return NULL;
@@ -113,6 +114,7 @@ struct Node* removeLink(struct Node *list){
   temp->next = NULL;        // So it is no longer connected to other links.
   return temp;
 }
+*/
 
 struct Node* removeLink(struct Node *list, int ind){
   if (list->p_ind == ind)
