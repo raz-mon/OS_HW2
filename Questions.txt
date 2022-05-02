@@ -1,3 +1,10 @@
+Understanding stuff:
+  - How to implement the linked-lists?
+  - How to enforce synchronization to the functions?
+    Our current idea requires an integer for each function.
+  - 
+
+
 Make sure we implemented the following correct:
     - Implementation of allocpid (cas instead of pidlock).
     - Implementation of the CAS function (assembly, in cas.S).

@@ -95,15 +95,14 @@ struct proc {
   int killed;                  // If non-zero, have been killed
   int xstate;                  // Exit status to be returned to parent's wait
   int pid;                     // Process ID
+  
+  // Added:
   int cpu_num;                 // Number (id) of cpu this process is affiliated with.
-  int next;                    // Index of the next process in the proc_table.
   int ind;                     // Index of the process in the proc_table (maybe can be in the lower list..).
+  int next;                    // Index of the next process in the proc_table.
 
   // wait_lock must be held when using this:
   struct proc *parent;         // Parent process
-
-  // proc node that is initiated with system initialization time
-  struct Node *node; 
 
   // these are private to the process, so p->lock need not be held.
   uint64 kstack;               // Virtual address of kernel stack

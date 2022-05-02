@@ -81,6 +81,17 @@ int get_ind(struct proc* pr){
   return ind;
 }
 
+public void add(T obj) {
+  Link<T> oldVal;
+  Link<T> newVal;
+  do {
+    oldVal = head.get();
+    newVal = new Link<T>(obj,oldVal);
+  } while (!head.cas(oldVal,newVal));
+}
+
+
+
 int getNext(int ind){
   // ADD SOME SYNCHRONIZATION METHOD.
   return proc[ind].next;
