@@ -53,6 +53,8 @@ public void add(T obj) {
 // Get next process index (next link in linked-list).
 // Notice that you must lock the process before calling, and release afterwards.
 int getNext(int ind){
+  printf("reached here getNext in : %d\n", ind);
+  printf("reached here getNext out: %d\n", proc[ind].next);
   return proc[ind].next;
 }
 
@@ -109,14 +111,25 @@ void printList(int *first){
 // If successful, return the added index ("link"). Else --> Return -1.
 void addLink(int *first, int to_add){
   int temp = *first;
+  if(temp == -1){
+    *first = to_add;
+    return;
+  }
+  printf("reached here\n");
   get_lock(temp);
+  printf("reached here 2\n");
   int next_ind = proc[temp].next;
+  printf("reached here 3: %d\n", next_ind);
   while (next_ind != -1){
     get_lock(next_ind);
+    printf("reached here 5\n");
     release_lock(temp);
+    printf("reached here 6\n");
     temp = next_ind;
     next_ind = getNext(temp);
+    printf("reached here 7: %d\n", next_ind);
   }
+  printf("reached here 4\n");
   // Add Syncronizetion
   proc[temp].next = to_add;
   release(&proc[temp].lock);
@@ -146,12 +159,15 @@ int removeFirst(int *first_p){
 // Remove link with index (in the proc_table) ind from the list.
 // Return ind of removed process for success, -1 for failure.
 int remove(int *first_p, int ind){
+  if(*first_p == -1){
+    return -1;
+  }
+
   get_lock(*first_p);
   if (ind == *first_p){
     release_lock(*first_p);
     return removeFirst(first_p);
   }
-
   int prev = *first_p;
   int curr = getNext(prev);
   // The node to be removed is not the first node in the linked-list.
@@ -171,6 +187,7 @@ int remove(int *first_p, int ind){
   release_lock(prev);
   return -1;
 }
+
 
 // Allocate a page for each process's kernel stack.
 // Map it high in memory, followed by an invalid
@@ -193,12 +210,18 @@ void
 procinit(void)
 {
   struct proc *p;
-  
+  // Added
+  int i = -1;
   initlock(&pid_lock, "nextpid");
   initlock(&wait_lock, "wait_lock");
   for(p = proc; p < &proc[NPROC]; p++) {
       initlock(&p->lock, "proc");
       p->kstack = KSTACK((int) (p - proc));
+      // Added
+      p->next = -1;
+      p->ind = i;
+      i++;
+      // printf("procinit: proc index: %d", i);
   }
 }
 
@@ -318,6 +341,11 @@ freeproc(struct proc *p)
   p->chan = 0;
   p->killed = 0;
   p->xstate = 0;
+  // Added
+  // Remove from ZOMBIE list
+  remove(&zombie, p->ind);
+  // Add to UNUSED list
+  addLink(&unused, p->ind);
   p->state = UNUSED;
 }
 
@@ -468,6 +496,9 @@ fork(void)
 
   acquire(&np->lock);
   np->state = RUNNABLE;
+  //Added
+  np->cpu_num = p->cpu_num;
+  
   release(&np->lock);
 
   return pid;
@@ -779,12 +810,14 @@ check_LL(void)
   printf("checking LL implementation...\n");
   sleeping = 1;
   addLink(&sleeping, 2);
+  /*
   addLink(&sleeping, 3);
   printList(&sleeping);
   removeFirst(&sleeping);
   printList(&sleeping);
   remove(&sleeping, 3);
   printList(&sleeping);
+  */
 }
 
 // End of addition.
