@@ -146,7 +146,7 @@ int removeFirst(int first_p){
   int ret = first_p;
   int next = getNext(first_p);
   setNext(first_p, next);
-  return ret;
+  return next;
 }
 
 // Allocate a page for each process's kernel stack.
