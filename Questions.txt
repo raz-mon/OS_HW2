@@ -1,3 +1,10 @@
+Understanding stuff:
+  - How to implement the linked-lists?
+  - How to enforce synchronization to the functions?
+    Our current idea requires an integer for each function.
+  - 
+
+
 Make sure we implemented the following correct:
     - Implementation of allocpid (cas instead of pidlock).
     - Implementation of the CAS function (assembly, in cas.S).
@@ -19,4 +26,9 @@ Make sure we implemented the following correct:
     
 
 
+Todo:
+- Change linked-list implementations (concurrent using PCB lock, and as specified in the assingment).
+- Change functions as described in the assignment (e.g., fork, scheduler, exit etc.).
+- Update index of each process (in proc_init or something like that).
+- 
 
