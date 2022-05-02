@@ -132,7 +132,7 @@ int removeFirst(int *first_p){
   }
   int ret = *first_p;
   int next = getNext(*first_p);
-  setNext(first_p, next);
+  setNext(*first_p, next);
   return ret;
 }
 
