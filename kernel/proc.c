@@ -88,9 +88,9 @@ int getNext(int ind){
 
 // Search a list for an index (a process).
 // If it exists in the list, return the index (which was passed as a parameter). Else --> Return -1.
-int search_list(int first, int ind){
-  int temp = first;
-  while (!(temp == -1)){
+int search_list(int *first, int ind){
+  int temp = *first;
+  while (temp != -1){
     if (temp == ind){
       return temp;
     }
@@ -105,9 +105,9 @@ void setNext(int ind, int next){
   proc[ind].next = next;
 }
 
-void printList(int first){
-  int temp = first;
-  while (!(temp == -1)){
+void printList(int *first){
+  int temp = *first;
+  while (temp != -1){
     printf("%d, ", temp);
     temp = getNext(temp);
   }
@@ -121,17 +121,17 @@ int addLink(int *first, int to_add){
     temp = proc[temp].next;
   // Add Syncronizetion
   proc[temp].next = to_add;
-  return first;
+  return to_add;
 }
 
 // Remove the first "link" of the linked-list.
 // Return the value of the first "link".
 int removeFirst(int *first_p){
-  if (first_p == -1){
+  if (*first_p == -1){
     return -1;
   }
-  int ret = first_p;
-  int next = getNext(first_p);
+  int ret = *first_p;
+  int next = getNext(*first_p);
   setNext(first_p, next);
   return ret;
 }
