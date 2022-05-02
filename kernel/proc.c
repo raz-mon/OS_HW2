@@ -56,6 +56,14 @@ int getNext(int ind){
   return proc[ind].next;
 }
 
+void get_lock(int ind){
+  acquire(&proc[ind].lock);
+}
+
+void release_lock(int ind){
+  release(&proc[ind].lock);
+}
+
 // Search a list for an index (a process).
 // If it exists in the list, return 0 (which was passed as a parameter). Else --> Return -1.
 int search_list(int *first, int ind){
@@ -69,7 +77,7 @@ int search_list(int *first, int ind){
     }
     next_ind = getNext(temp_ind);
     if (next_ind != -1){
-      aquire(&proc[next_ind].lock);
+      acquire(&proc[next_ind].lock);
       release(&proc[temp_ind].lock);
       temp_ind = next_ind;
     }
@@ -94,17 +102,18 @@ void printList(int *first){
     printf("%d, ", temp);
     temp = getNext(temp);
   }
+  printf("\n");
 }
 
 // Add a link to a "linked-list" to the end of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
 void addLink(int *first, int to_add){
   int temp = *first;
-  acquire(&proc[temp].lock);
+  get_lock(temp);
   int next_ind = proc[temp].next;
   while (next_ind != -1){
-    acquire(&proc[next_ind]);
-    release(&proc[temp].lock);
+    get_lock(next_ind);
+    release_lock(temp);
     temp = next_ind;
     next_ind = getNext(temp);
   }
@@ -121,6 +130,7 @@ int removeFirst(int *first_p){
     return -1;     // Empty list.
   }
   int temp_ind = *first_p;
+  get_lock(*first_p);
   acquire(&proc[*first_p].lock);
   int next_ind = getNext(*first_p);
   if (next_ind != -1){
@@ -139,7 +149,7 @@ int remove(int *first_p, int ind){
   get_lock(*first_p);
   if (ind == *first_p){
     release_lock(*first_p);
-    return removeFirst(*first_p);
+    return removeFirst(first_p);
   }
 
   int prev = *first_p;
@@ -160,14 +170,6 @@ int remove(int *first_p, int ind){
   }
   release_lock(prev);
   return -1;
-}
-
-void get_lock(int ind){
-  acquire(&proc[ind].lock);
-}
-
-void release_lock(int ind){
-  release(&proc[ind].lock);
 }
 
 // Allocate a page for each process's kernel stack.
@@ -775,6 +777,14 @@ void
 check_LL(void)
 {
   printf("checking LL implementation...\n");
+  sleeping = 1;
+  addLink(&sleeping, 2);
+  addLink(&sleeping, 3);
+  printList(&sleeping);
+  removeFirst(&sleeping);
+  printList(&sleeping);
+  remove(&sleeping, 3);
+  printList(&sleeping);
 }
 
 // End of addition.
