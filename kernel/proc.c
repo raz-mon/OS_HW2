@@ -113,33 +113,20 @@ void printList(int first){
   }
 }
 
-/*
-void addLink(struct Node *list, struct Node *node){
-  if (list == NULL){    // Empty list --> list has node only --> list = node.
-    list = node;
-  }
-  // Non-empty list --> Add node to the end of the list.
-  struct Node *temp = list;
-  while (!temp->next == NULL){
-    temp = temp->next;
-  }
-  temp->next = node;
-}
-*/
-
 // Add a link to a "linked-list".
 // If successful, return the added index ("link"). Else --> Return -1.
-int addLink(int first, int to_add){
-  while (proc[first].next != -1)
-    first = proc[first].next;
+int addLink(int *first, int to_add){
+  int temp = *first;
+  while (proc[temp].next != -1)
+    temp = proc[temp].next;
   // Add Syncronizetion
-  proc[first].next = to_add;
+  proc[temp].next = to_add;
   return first;
 }
 
 // Remove the first "link" of the linked-list.
 // Return the value of the first "link".
-int removeFirst(int first_p){
+int removeFirst(int *first_p){
   if (first_p == -1){
     return -1;
   }
