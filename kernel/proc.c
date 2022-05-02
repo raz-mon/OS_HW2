@@ -39,48 +39,7 @@ int sleeping = -1;
 int zombie = -1;
 int unused = -1;
 
-// Added: 
-// The linked-list struct, and methods for inserting and removing an element (inserting to the beginning, removing
-// from the end - as a queue)
-//struct Node {
-// struct proc *p;
-//  int p_ind;           // The proc this node holds' index in the proc table (array).
-//  struct Node *next;  // Next node in linked-list.
-//};
-
 /*
-// Allocate a new node for a process.
-struct Node* allocNode(struct proc *p, struct Node *next) {
-  struct Node *newNode = (struct Node*)malloc(sizeof(struct Node));
-  newNode->p = p;
-  newNode->next = next;
-  return newNode;
-}
-*/
-
-int int_lock = 0;
-
-int get_ind(struct proc* pr){
-  while (!cas(&int_lock, 0, 1))
-    ;;
-  // Now the one cpu that has changed the int_lock is in the CS.
-
-  struct proc* p;
-  int ind = 0;
-  for(p = proc; p < &proc[NPROC]; p++) {
-      acquire(&p->lock);
-      if (p == pr){
-        release(&p->lock);      // Release lock.
-        cas(&int_lock, 1, 0);   // Release the lock.
-        return ind;
-      }
-      ind++;
-      release(&p->lock);        // Release lock.
-    }
-  cas(&int_lock, 1, 0);   // Release the lock.
-  return ind;
-}
-
 public void add(T obj) {
   Link<T> oldVal;
   Link<T> newVal;
@@ -89,33 +48,46 @@ public void add(T obj) {
     newVal = new Link<T>(obj,oldVal);
   } while (!head.cas(oldVal,newVal));
 }
+*/
 
-
-
+// Get next process index (next link in linked-list).
+// Notice that you must lock the process before calling, and release afterwards.
 int getNext(int ind){
-  // ADD SOME SYNCHRONIZATION METHOD.
   return proc[ind].next;
 }
 
 // Search a list for an index (a process).
-// If it exists in the list, return the index (which was passed as a parameter). Else --> Return -1.
+// If it exists in the list, return 0 (which was passed as a parameter). Else --> Return -1.
 int search_list(int *first, int ind){
-  int temp = *first;
-  while (temp != -1){
-    if (temp == ind){
-      return temp;
+  acquire(&proc[*first].lock);
+  int temp_ind = *first;
+  int next_ind = -1;
+  while (temp_ind != -1){
+    if (temp_ind == ind){
+      release(&proc[temp_ind].lock);
+      return 0;   // Return true (0).
     }
-    temp = getNext(temp);
+    next_ind = getNext(temp_ind);
+    if (next_ind != -1){
+      aquire(&proc[next_ind].lock);
+      release(&proc[temp_ind].lock);
+      temp_ind = next_ind;
+    }
+    temp_ind = getNext(temp_ind);
   }
-  return -1;
+  release(&proc[temp_ind].lock);
+  return 1;     // Return false (1).
 }
 
 
 // Set next field of a process (in PCB).
 void setNext(int ind, int next){
+  acquire(&proc[ind].lock);
   proc[ind].next = next;
+  release(&proc[ind].lock);
 }
 
+// No synch now, this is for debugging purposes.
 void printList(int *first){
   int temp = *first;
   while (temp != -1){
@@ -124,27 +96,78 @@ void printList(int *first){
   }
 }
 
-// Add a link to a "linked-list".
+// Add a link to a "linked-list" to the end of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
-int addLink(int *first, int to_add){
+void addLink(int *first, int to_add){
   int temp = *first;
-  while (proc[temp].next != -1)
-    temp = proc[temp].next;
+  acquire(&proc[temp].lock);
+  int next_ind = proc[temp].next;
+  while (next_ind != -1){
+    acquire(&proc[next_ind]);
+    release(&proc[temp].lock);
+    temp = next_ind;
+    next_ind = getNext(temp);
+  }
   // Add Syncronizetion
   proc[temp].next = to_add;
-  return to_add;
+  release(&proc[temp].lock);
 }
 
 // Remove the first "link" of the linked-list.
 // Return the value of the first "link".
 int removeFirst(int *first_p){
+  // The first part is not fully synchronized - Think about a way to overcome this.
   if (*first_p == -1){
-    return -1;
+    return -1;     // Empty list.
   }
-  int ret = *first_p;
-  int next = getNext(*first_p);
-  setNext(*first_p, next);
-  return ret;
+  int temp_ind = *first_p;
+  acquire(&proc[*first_p].lock);
+  int next_ind = getNext(*first_p);
+  if (next_ind != -1){
+    acquire(&proc[next_ind].lock);
+    *first_p = next_ind;
+    proc[temp_ind].next = -1;     // No longer points at the next link (process).
+    release(&proc[*first_p].lock);
+    release(&proc[temp_ind].lock);
+  }
+  return temp_ind;
+}
+
+// Remove link with index (in the proc_table) ind from the list.
+// Return ind of removed process for success, -1 for failure.
+int remove(int *first_p, int ind){
+  get_lock(*first_p);
+  if (ind == *first_p){
+    release_lock(*first_p);
+    return removeFirst(*first_p);
+  }
+
+  int prev = *first_p;
+  int curr = getNext(prev);
+  // The node to be removed is not the first node in the linked-list.
+  while (curr != -1){
+    get_lock(curr);
+    if (curr == ind){
+      proc[prev].next = proc[curr].next;
+      proc[curr].next = -1;
+      release_lock(curr);
+      release_lock(prev);
+      return 0;
+    }
+    release_lock(prev);
+    prev = curr;
+    curr = getNext(curr);
+  }
+  release_lock(prev);
+  return -1;
+}
+
+void get_lock(int ind){
+  acquire(&proc[ind].lock);
+}
+
+void release_lock(int ind){
+  release(&proc[ind].lock);
 }
 
 // Allocate a page for each process's kernel stack.
