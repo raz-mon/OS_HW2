@@ -115,21 +115,14 @@ void addLink(int *first, int to_add){
     *first = to_add;
     return;
   }
-  printf("reached here\n");
   get_lock(temp);
-  printf("reached here 2\n");
   int next_ind = proc[temp].next;
-  printf("reached here 3: %d\n", next_ind);
   while (next_ind != -1){
     get_lock(next_ind);
-    printf("reached here 5\n");
     release_lock(temp);
-    printf("reached here 6\n");
     temp = next_ind;
     next_ind = getNext(temp);
-    printf("reached here 7: %d\n", next_ind);
   }
-  printf("reached here 4\n");
   // Add Syncronizetion
   proc[temp].next = to_add;
   release(&proc[temp].lock);
@@ -144,7 +137,8 @@ int removeFirst(int *first_p){
   }
   int temp_ind = *first_p;
   get_lock(*first_p);
-  acquire(&proc[*first_p].lock);
+  printf("removefirst reached here\n");
+  //acquire(&proc[*first_p].lock);
   int next_ind = getNext(*first_p);
   if (next_ind != -1){
     acquire(&proc[next_ind].lock);
@@ -211,7 +205,7 @@ procinit(void)
 {
   struct proc *p;
   // Added
-  int i = -1;
+  int i = 0;
   initlock(&pid_lock, "nextpid");
   initlock(&wait_lock, "wait_lock");
   for(p = proc; p < &proc[NPROC]; p++) {
@@ -221,6 +215,7 @@ procinit(void)
       p->next = -1;
       p->ind = i;
       i++;
+      addLink(&unused, p->ind);
       // printf("procinit: proc index: %d", i);
   }
 }
@@ -282,8 +277,19 @@ allocpid() {
 static struct proc*
 allocproc(void)
 {
+  printf("entered allocpro\n");
   struct proc *p;
+  // Added
+  int index = removeFirst(&unused);
+  printf("allocpro reached here\n");
+  if(index == -1){return 0;}
+  else{
+    p = &proc[index];
+    acquire(&p->lock);
+    goto found;
+  }
 
+  /*
   for(p = proc; p < &proc[NPROC]; p++) {
     acquire(&p->lock);
     if(p->state == UNUSED) {
@@ -293,7 +299,7 @@ allocproc(void)
     }
   }
   return 0;
-
+  */
 found:
   p->pid = allocpid();
   p->state = USED;
@@ -424,10 +430,16 @@ userinit(void)
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
   p->cwd = namei("/");
-
+  
   p->state = RUNNABLE;
+  //Added
+  p->cpu_num = 0;
 
   release(&p->lock);
+  //Added
+  // add p to cpu runnable list
+  addLink(&cpus[p->cpu_num].first, p->ind);
+  printf("userinit reached here\n");
 }
 
 // Grow or shrink user memory by n bytes.
@@ -498,8 +510,9 @@ fork(void)
   np->state = RUNNABLE;
   //Added
   np->cpu_num = p->cpu_num;
-  
   release(&np->lock);
+  //Added
+  addLink(&cpus[np->cpu_num].first, np->ind);
 
   return pid;
 }
@@ -552,6 +565,10 @@ exit(int status)
   // Parent might be sleeping in wait().
   wakeup(p->parent);
   
+  // Added
+  // add p to the zombie list
+  addLink(&zombie, p->ind);
+
   acquire(&p->lock);
 
   p->xstate = status;
@@ -629,8 +646,27 @@ scheduler(void)
   c->proc = 0;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
+    printf("schedulr reached here\n");
     intr_on();
-
+    //Added
+    int index;
+    while (c->first != -1)
+    {
+      index = removeFirst(&c->first);
+      if(index == -1){ break;}
+      get_lock(index);
+      p = &proc[index];
+      p->state = RUNNING;
+      c->proc = p;
+      release_lock(index);
+      swtch(&c->context, &p->context);
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+      //Should the release lock be here?
+    }
+    
+/*
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if(p->state == RUNNABLE) {
@@ -647,6 +683,7 @@ scheduler(void)
       }
       release(&p->lock);
     }
+  */
   }
 }
 
@@ -682,6 +719,10 @@ void
 yield(void)
 {
   struct proc *p = myproc();
+  //Added
+  // add p to the cpu runnable list
+  addLink(&cpus[p->cpu_num].first, p->ind);
+
   acquire(&p->lock);
   p->state = RUNNABLE;
   sched();
@@ -723,6 +764,12 @@ sleep(void *chan, struct spinlock *lk)
   // (wakeup locks p->lock),
   // so it's okay to release lk.
 
+  // Added
+  // why should we do it? sleep can be called only from running state (?)
+  remove(&cpus[p->ind].first, p->ind);
+  // add p to the sleeping list
+  addLink(&sleeping, p->ind);
+
   acquire(&p->lock);  //DOC: sleeplock1
   release(lk);
 
@@ -754,6 +801,11 @@ wakeup(void *chan)
         p->state = RUNNABLE;
       }
       release(&p->lock);
+      //Added
+      // remove p from sleeping
+      remove(&sleeping, p->ind);
+      // add p to cpu's runnable list
+      addLink(&cpus[p->cpu_num].first,p->ind);
     }
   }
 }
@@ -775,6 +827,9 @@ kill(int pid)
         p->state = RUNNABLE;
       }
       release(&p->lock);
+      // Added
+      remove(&sleeping, p->ind);
+      addLink(&cpus[p->ind].first, p->ind);
       return 0;
     }
     release(&p->lock);
