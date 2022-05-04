@@ -214,7 +214,7 @@ int remove(int *first_p, int ind){
     else{
         int temp = *first_p;
         int temp2 = getNext(*first_p);
-        getlock(temp2);
+        get_lock(temp2);
         *first_p = temp2;
         proc[temp].next = -1;
         release_lock(temp);
