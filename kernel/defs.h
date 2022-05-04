@@ -109,6 +109,9 @@ int             getNext(int ind);
 int             set_cpu(int cpu_num);
 int             get_cpu(void);
 void            check_LL(void);
+void increase_cpu_counter(int cpu_index);
+void decreace_cpu_counter(int cpu_index);
+int steal_procces();
 
 // swtch.S
 void            swtch(struct context*, struct context*);

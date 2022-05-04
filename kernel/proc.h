@@ -26,7 +26,8 @@ struct cpu {
   int intena;                 // Were interrupts enabled before push_off()?
 
   // Added:
-  int first;                   // Index of the first node (process) in the READY-list (RUNNABLE-list) of the cpu.
+  int first;                  // Index of the first node (process) in the READY-list (RUNNABLE-list) of the cpu.
+  int process_counter;        // count the number of processes in the list of the cpu.
 };
 
 extern struct cpu cpus[NCPU];

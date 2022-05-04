@@ -66,6 +66,29 @@ void release_lock(int ind){
   release(&proc[ind].list_lock);
 }
 
+void increase_cpu_counter(int cpu_index){
+  int counts;
+  do{
+    counts = cpus[cpu_index].process_counter;
+  } while (cas(&cpus[cpu_index].process_counter, counts, counts+1));
+}
+
+void decreace_cpu_counter(int cpu_index){
+  int counts;
+  do{
+    counts = cpus[cpu_index].process_counter;
+    if(counts < 1){ break;}
+  } while (cas(&cpus[cpu_index].process_counter, counts, counts - 1));
+}
+
+// This function return the CPU INDEX which we can be stealing from
+int steal_procces(){
+  for(int i = 0; i < NCPU; i++){
+    if(cpus[i].process_counter > 0){return i;}
+  }
+  return -1;
+}
+
 // Search a list for an index (a process).
 // If it exists in the list, return 0 (which was passed as a parameter). Else --> Return -1.
 int search_list(int *first, int ind){
@@ -438,6 +461,7 @@ userinit(void)
   p->state = RUNNABLE;
   //Added
   p->cpu_num = 0;
+  cpus[p->cpu_num].process_counter = 1;
   // add p to cpu runnable list
   addLink(&cpus[p->cpu_num].first, p->ind);
 
@@ -655,6 +679,13 @@ scheduler(void)
     //Added
     printf("schedulr cpu first index: %d\n", c->first);
     int index;
+    int cpu_index;
+    if(c->process_counter == 0){
+      cpu_index = steal_procces();
+      addLink(&c->first, removeFirst(&cpus[cpu_index].first));
+      decreace_cpu_counter(cpu_index);
+      increase_cpu_counter(cpuid());
+    }
     while (c->first != -1)
     {
       printf("schedulr reached here 2\n");
