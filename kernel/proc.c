@@ -282,8 +282,7 @@ procinit(void)
       p->cpu_num = 0;
       i++;
       // addLink(&unused, p->ind);
-      
-      // printf("procinit: proc index: %d", i);
+      printf("procinit: proc index: %d", i);
   }
 }
 
