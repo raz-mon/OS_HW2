@@ -281,7 +281,8 @@ procinit(void)
       p->ind = i;
       p->cpu_num = 0;
       i++;
-      addLink(&unused, p->ind);
+      // addLink(&unused, p->ind);
+      
       // printf("procinit: proc index: %d", i);
   }
 }
@@ -718,13 +719,6 @@ scheduler(void)
     //Added
     printf("schedulr cpu first index: %d\n", c->first);
     int index;
-    int cpu_index;
-    if(c->process_counter == 0){
-      cpu_index = steal_procces();
-      addLink(&c->first, removeFirst(&cpus[cpu_index].first));
-      decreace_cpu_counter(cpu_index);
-      increase_cpu_counter(cpuid());
-    }
     while (c->first != -1)
     {
       printf("schedulr reached here 2\n");
@@ -745,6 +739,21 @@ scheduler(void)
       //Should the release lock be here?
       release(&p->lock);
     }
+   
+   
+   
+    // For part 4.
+    /*
+    int cpu_index;
+    if(c->process_counter == 0){
+      cpu_index = steal_procces();
+      addLink(&c->first, removeFirst(&cpus[cpu_index].first));
+      decreace_cpu_counter(cpu_index);
+      increase_cpu_counter(cpuid());
+    }
+    */
+
+
     
 /*
     for(p = proc; p < &proc[NPROC]; p++) {
