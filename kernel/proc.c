@@ -59,42 +59,42 @@ int getNext(int ind){
 }
 
 void get_lock(int ind){
-  acquire(&proc[ind].lock);
+  acquire(&proc[ind].list_lock);
 }
 
 void release_lock(int ind){
-  release(&proc[ind].lock);
+  release(&proc[ind].list_lock);
 }
 
 // Search a list for an index (a process).
 // If it exists in the list, return 0 (which was passed as a parameter). Else --> Return -1.
 int search_list(int *first, int ind){
-  acquire(&proc[*first].lock);
+  get_lock(*first);
   int temp_ind = *first;
   int next_ind = -1;
   while (temp_ind != -1){
     if (temp_ind == ind){
-      release(&proc[temp_ind].lock);
+      release_lock(temp_ind);
       return 0;   // Return true (0).
     }
     next_ind = getNext(temp_ind);
     if (next_ind != -1){
-      acquire(&proc[next_ind].lock);
-      release(&proc[temp_ind].lock);
+      get_lock(next_ind);
+      release_lock(temp_ind);
       temp_ind = next_ind;
     }
     temp_ind = getNext(temp_ind);
   }
-  release(&proc[temp_ind].lock);
+  release_lock(temp_ind);
   return 1;     // Return false (1).
 }
 
 
 // Set next field of a process (in PCB).
 void setNext(int ind, int next){
-  acquire(&proc[ind].lock);
+  get_lock(ind);
   proc[ind].next = next;
-  release(&proc[ind].lock);
+  release_lock(ind);
 }
 
 // No synch now, this is for debugging purposes.
@@ -109,23 +109,23 @@ void printList(int *first){
 
 // Add a link to a "linked-list" to the end of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
-void addLink(int *first, int to_add){
-  int temp = *first;
-  if(temp == -1){
-    *first = to_add;
+void addLink(int *first_ind, int to_add){
+  int temp_ind = *first_ind;
+  if(temp_ind == -1){
+    *first_ind = to_add;
     return;
   }
-  get_lock(temp);
-  int next_ind = proc[temp].next;
+  get_lock(temp_ind);
+  int next_ind = proc[temp_ind].next;
   while (next_ind != -1){
     get_lock(next_ind);
-    release_lock(temp);
-    temp = next_ind;
-    next_ind = getNext(temp);
+    release_lock(temp_ind);
+    temp_ind = next_ind;
+    next_ind = getNext(temp_ind);
   }
   // Add Syncronizetion
-  proc[temp].next = to_add;
-  release(&proc[temp].lock);
+  proc[temp_ind].next = to_add;
+  release_lock(temp_ind);
 }
 
 // Remove the first "link" of the linked-list.
@@ -133,6 +133,7 @@ void addLink(int *first, int to_add){
 int removeFirst(int *first_p){
   // The first part is not fully synchronized - Think about a way to overcome this.
   if (*first_p == -1){
+    printf("removefirst returned -1\n");
     return -1;     // Empty list.
   }
   int temp_ind = *first_p;
@@ -141,11 +142,11 @@ int removeFirst(int *first_p){
   //acquire(&proc[*first_p].lock);
   int next_ind = getNext(*first_p);
   if (next_ind != -1){
-    acquire(&proc[next_ind].lock);
+    get_lock(next_ind);
     *first_p = next_ind;
     proc[temp_ind].next = -1;     // No longer points at the next link (process).
-    release(&proc[*first_p].lock);
-    release(&proc[temp_ind].lock);
+    release_lock(*first_p);
+    release_lock(temp_ind);
   }
   return temp_ind;
 }
@@ -210,11 +211,13 @@ procinit(void)
   initlock(&wait_lock, "wait_lock");
   for(p = proc; p < &proc[NPROC]; p++) {
       initlock(&p->lock, "proc");
+      // Added
+      initlock(&p->list_lock, "list_lock");
       p->kstack = KSTACK((int) (p - proc));
       // Added
       p->next = -1;
       p->ind = i;
-      p->cpu_num = 0;       // Initialize it, will be changed in fork to the relevant one.
+      p->cpu_num = 0;
       i++;
       addLink(&unused, p->ind);
       // printf("procinit: proc index: %d", i);
@@ -278,11 +281,11 @@ allocpid() {
 static struct proc*
 allocproc(void)
 {
-  printf("entered allocpro\n");
+  printf("entered allocproc\n");
   struct proc *p;
   // Added
   int index = removeFirst(&unused);
-  printf("allocpro reached here\n");
+  printf("allocproc reached here\n");
   if(index == -1){return 0;}
   else{
     p = &proc[index];
@@ -435,11 +438,10 @@ userinit(void)
   p->state = RUNNABLE;
   //Added
   p->cpu_num = 0;
-
-  release(&p->lock);
-  //Added
   // add p to cpu runnable list
   addLink(&cpus[p->cpu_num].first, p->ind);
+
+  release(&p->lock);
   printf("userinit reached here\n");
 }
 
@@ -511,9 +513,9 @@ fork(void)
   np->state = RUNNABLE;
   //Added
   np->cpu_num = p->cpu_num;
-  release(&np->lock);
-  //Added
   addLink(&cpus[np->cpu_num].first, np->ind);
+
+  release(&np->lock);
 
   return pid;
 }
@@ -641,29 +643,37 @@ wait(uint64 addr)
 void
 scheduler(void)
 {
+  printf("entered scheduler\n");
   struct proc *p;
   struct cpu *c = mycpu();
   
   c->proc = 0;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
-    printf("schedulr reached here\n");
+    printf("entered scheduler loop\n");
     intr_on();
     //Added
+    printf("schedulr cpu first index: %d\n", c->first);
     int index;
     while (c->first != -1)
     {
+      printf("schedulr reached here 2\n");
       index = removeFirst(&c->first);
-      get_lock(index);
+      printf("schedulr remove index: %d\n", index);
       p = &proc[index];
+      acquire(&p->lock);
+      if(p->state != RUNNABLE){release(&p->lock); break;}
       p->state = RUNNING;
       c->proc = p;
+      release_lock(index);
+      printf("schedulr reached here 4\n");
       swtch(&c->context, &p->context);
+      printf("schedulr reached here: after swtch\n");
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
-      // Should the release lock be here?
-      release_lock(index);
+      //Should the release lock be here?
+      release(&p->lock);
     }
     
 /*
@@ -719,11 +729,10 @@ void
 yield(void)
 {
   struct proc *p = myproc();
+  acquire(&p->lock);
   //Added
   // add p to the cpu runnable list
   addLink(&cpus[p->cpu_num].first, p->ind);
-
-  acquire(&p->lock);
   p->state = RUNNABLE;
   sched();
   release(&p->lock);
@@ -798,12 +807,12 @@ wakeup(void *chan)
       if(p->state == SLEEPING && p->chan == chan) {
         p->state = RUNNABLE;
       }
-      release(&p->lock);
       //Added
       // remove p from sleeping
       remove(&sleeping, p->ind);
       // add p to cpu's runnable list
       addLink(&cpus[p->cpu_num].first,p->ind);
+      release(&p->lock);
     }
   }
 }
@@ -823,11 +832,11 @@ kill(int pid)
       if(p->state == SLEEPING){
         // Wake process from sleep().
         p->state = RUNNABLE;
-        // Added
-        remove(&sleeping, p->ind);
-        addLink(&cpus[p->ind].first, p->ind);
       }
       release(&p->lock);
+      // Added
+      remove(&sleeping, p->ind);
+      addLink(&cpus[p->ind].first, p->ind);
       return 0;
     }
     release(&p->lock);
