@@ -60,7 +60,10 @@ int getNext(int ind){
 }
 
 void get_lock(int ind){
-  acquire(&proc[ind].list_lock);
+  if (proc[ind].lock.cpu == mycpu())
+    printf("cpu number %d already has the lock he's trying to catch (get_lock)");
+  else
+    acquire(&proc[ind].list_lock);
 }
 
 void release_lock(int ind){
@@ -184,9 +187,9 @@ int removeFirst(int *first_p){
     get_lock(next_ind);
     *first_p = next_ind;
     proc[temp_ind].next = -1;     // No longer points at the next link (process).
-    release_lock(*first_p);
     release_lock(temp_ind);
-  return temp_ind;
+    release_lock(next_ind);
+    return temp_ind;
   }
   else{                           // 1-component list.
     *first_p = -1;                // Empty list.
@@ -211,7 +214,7 @@ int remove(int *first_p, int ind){
       int temp = *first_p;
       *first_p = -1;
       release_lock(temp);
-      return temp;
+      return 0;
     }
     else{
         int temp = *first_p;
@@ -221,7 +224,7 @@ int remove(int *first_p, int ind){
         proc[temp].next = -1;
         release_lock(temp);
         release_lock(temp2);
-        return temp;
+        return 0;
     }
   }
 
