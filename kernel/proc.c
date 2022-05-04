@@ -143,6 +143,8 @@ void printList(int *first){
 // Add a link to a "linked-list" to the END of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
 void addLink(int *first_ind, int to_add){
+  printf("Added ind %d to a list!");
+
   int temp_ind = *first_ind;
   // Handle case of empty list (index=-1).
   if(temp_ind == -1){
@@ -281,8 +283,9 @@ procinit(void)
       p->ind = i;
       p->cpu_num = 0;
       i++;
-      // addLink(&unused, p->ind);
-      printf("procinit: proc index: %d", i);
+      if (p->pid != 1){
+        addLink(&unused, p->ind);       // Add link to the unused list, if this is not the init proc.
+      }
   }
 }
 
@@ -348,7 +351,7 @@ allocproc(void)
   // Added
   int index = removeFirst(&unused);
   printf("allocproc reached here\n");
-  if(index == -1){return 0;}
+  if(index == -1){return 0;}        // Unused is empty.
   else{
     p = &proc[index];
     acquire(&p->lock);
