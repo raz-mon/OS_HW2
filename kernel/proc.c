@@ -143,7 +143,7 @@ void printList(int *first){
 // Add a link to a "linked-list" to the END of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
 void addLink(int *first_ind, int to_add){
-  printf("Added ind %d to a list!");
+  // printf("Added ind %d to a list!");
 
   int temp_ind = *first_ind;
   // Handle case of empty list (index=-1).
@@ -346,11 +346,9 @@ allocpid() {
 static struct proc*
 allocproc(void)
 {
-  printf("entered allocproc\n");
   struct proc *p;
   // Added
   int index = removeFirst(&unused);
-  printf("allocproc reached here\n");
   if(index == -1){return 0;}        // Unused is empty.
   else{
     p = &proc[index];
@@ -508,7 +506,6 @@ userinit(void)
   addLink(&cpus[p->cpu_num].first, p->ind);
 
   release(&p->lock);
-  printf("userinit reached here\n");
 }
 
 // Grow or shrink user memory by n bytes.
