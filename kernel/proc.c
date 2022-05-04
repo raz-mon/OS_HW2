@@ -61,13 +61,16 @@ int getNext(int ind){
 
 void get_lock(int ind){
   if (proc[ind].lock.cpu == mycpu())
-    printf("cpu number %d already has the lock he's trying to catch (get_lock)");
+    printf("cpu number %d already has the lock he's trying to catch (get_lock)", mycpu());
   else
     acquire(&proc[ind].list_lock);
 }
 
 void release_lock(int ind){
-  release(&proc[ind].list_lock);
+  if (proc[ind].lock.cpu != mycpu())
+    printf("cpu number %d trying to catch lock not in it's posession", mycpu());
+  else
+    release(&proc[ind].list_lock);
 }
 
 void increase_cpu_counter(int cpu_index){
