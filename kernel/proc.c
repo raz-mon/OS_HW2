@@ -287,8 +287,8 @@ procinit(void)
         addLink(&unused, p->ind);       // Add link to the unused list, if this is not the init proc.
       }
   }
-  printf("unused list: \n");
-  printList(&unused);
+  // printf("unused list: \n");
+  // printList(&unused);
 }
 
 // Must be called with interrupts disabled,
