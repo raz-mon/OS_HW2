@@ -730,14 +730,14 @@ scheduler(void)
     while (c->first != -1)
     {
       printf("schedulr reached here 2\n");
-      index = removeFirst(&c->first);
+      index = removeFirst(&(c->first));
       printf("schedulr remove index: %d\n", index);
-      p = &proc[index];
-      acquire(&p->lock);
+      p = &(proc[index]);
+      acquire(&(p->lock));
       if(p->state != RUNNABLE){release(&p->lock); break;}
       p->state = RUNNING;
       c->proc = p;
-      release_lock(index);
+      // release_lock(index);
       printf("schedulr reached here 4\n");
       swtch(&c->context, &p->context);
       printf("schedulr reached here: after swtch\n");
