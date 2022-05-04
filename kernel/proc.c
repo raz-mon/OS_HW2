@@ -53,8 +53,8 @@ public void add(T obj) {
 // Get next process index (next link in linked-list).
 // Notice that you must lock the process before calling, and release afterwards.
 int getNext(int ind){
-  printf("reached here getNext in : %d\n", ind);
-  printf("reached here getNext out: %d\n", proc[ind].next);
+  // printf("reached here getNext in : %d\n", ind);
+  // printf("reached here getNext out: %d\n", proc[ind].next);
   return proc[ind].next;
 }
 
