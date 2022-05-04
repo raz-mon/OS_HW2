@@ -60,14 +60,14 @@ int getNext(int ind){
 }
 
 void get_lock(int ind){
-  if (proc[ind].lock.cpu == mycpu())
+  if (proc[ind].list_lock.cpu == mycpu())
     printf("cpu number %d already has the lock he's trying to catch (get_lock)", mycpu());
   else
     acquire(&proc[ind].list_lock);
 }
 
 void release_lock(int ind){
-  if (proc[ind].lock.cpu != mycpu())
+  if (proc[ind].list_lock.cpu != mycpu())
     printf("cpu number %d trying to catch lock not in it's posession", mycpu());
   else
     release(&proc[ind].list_lock);
@@ -184,7 +184,6 @@ int removeFirst(int *first_p){
   // Non-empty list case.
   int temp_ind = *first_p;
   get_lock(*first_p);           // Take first node's lock.
-  //acquire(&proc[*first_p].lock);
   int next_ind = getNext(*first_p);     // No concurency problem here, since the first node is locked --> No-one can change his successor.
   if (next_ind != -1){            // List has more than one component.
     get_lock(next_ind);
