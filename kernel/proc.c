@@ -214,6 +214,7 @@ procinit(void)
       // Added
       p->next = -1;
       p->ind = i;
+      p->cpu_num = 0;       // Initialize it, will be changed in fork to the relevant one.
       i++;
       addLink(&unused, p->ind);
       // printf("procinit: proc index: %d", i);
@@ -653,17 +654,16 @@ scheduler(void)
     while (c->first != -1)
     {
       index = removeFirst(&c->first);
-      if(index == -1){ break;}
       get_lock(index);
       p = &proc[index];
       p->state = RUNNING;
       c->proc = p;
-      release_lock(index);
       swtch(&c->context, &p->context);
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
-      //Should the release lock be here?
+      // Should the release lock be here?
+      release_lock(index);
     }
     
 /*
@@ -765,8 +765,6 @@ sleep(void *chan, struct spinlock *lk)
   // so it's okay to release lk.
 
   // Added
-  // why should we do it? sleep can be called only from running state (?)
-  remove(&cpus[p->ind].first, p->ind);
   // add p to the sleeping list
   addLink(&sleeping, p->ind);
 
@@ -825,11 +823,11 @@ kill(int pid)
       if(p->state == SLEEPING){
         // Wake process from sleep().
         p->state = RUNNABLE;
+        // Added
+        remove(&sleeping, p->ind);
+        addLink(&cpus[p->ind].first, p->ind);
       }
       release(&p->lock);
-      // Added
-      remove(&sleeping, p->ind);
-      addLink(&cpus[p->ind].first, p->ind);
       return 0;
     }
     release(&p->lock);
