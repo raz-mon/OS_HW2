@@ -326,6 +326,7 @@ procinit(void)
   }
   // printf("unused list: \n");
   // printList(&unused);
+  printf("Finished procinit.\n");
 }
 
 // Must be called with interrupts disabled,
@@ -545,6 +546,8 @@ userinit(void)
   remove(&unused, p->ind);                                  // Remove this link from the unused list.
   addLink(&cpus[p->cpu_num].first, p->ind);                 // Add this link to this cpu's list.
   release(&p->lock);
+
+  printf("Finished userinit.\n");
 }
 
 // Grow or shrink user memory by n bytes.

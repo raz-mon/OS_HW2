@@ -24,7 +24,8 @@ acquire(struct spinlock *lk)
   push_off(); // disable interrupts to avoid deadlock.
   if(holding(lk)){
     // Added:
-    printf("Panicking on process %d", myproc()->ind);
+    // printf("Panicking on process %d", myproc()->ind);
+    // End of addition.
     panic("acquire");
   }
     // panic("acquire. Problematic lock: %s. Held by cpu: %d", lk->name, lk->cpu->ind);
