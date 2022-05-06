@@ -232,34 +232,34 @@ int removeFirst(int *first_p){
 // Remove link with index (in the proc_table) ind from the list.
 // Return 1 (true) for success, 0 (false) for failure.
 int remove(int *first_p, int ind){
-  printf("\n\nEntered remove. Removing process in index %d from a list\n\n");
+  printf("\nEntered remove. Removing process %d from a list\n");
   // Handle empty list case.
   if(*first_p == -1){
     return -1;
   }
 
   // List is not empty.
-  // printf("Taking %d\n", *first_p);
+  printf("Taking %d\n", *first_p);
   get_lock(*first_p);                       // Get lock of first node.
 
   if (ind == *first_p){                 // The element we wish to extract from the list is the first element.
     if (getNext(*first_p) == -1){       // List of one element, which is the wanted element.
       int temp = *first_p;
       *first_p = -1;
-      // printf("Releasing %d\n", temp);
+      printf("Releasing %d\n", temp);
       release_lock(temp);
       return 1;
     }
     else{                               // List of more than one element.
         int temp = *first_p;
         int temp2 = getNext(*first_p);
-        // printf("Taking %d\n", temp2);
+        printf("Taking %d\n", temp2);
         get_lock(temp2);
         *first_p = temp2;
         proc[temp].next = -1;
-        // printf("Releasing %d\n", temp);
+        printf("Releasing %d\n", temp);
         release_lock(temp);
-        // printf("Releasing %d\n", temp2);
+        printf("Releasing %d\n", temp2);
         release_lock(temp2);
         return 1;
     }
@@ -279,18 +279,18 @@ int remove(int *first_p, int ind){
       // Delete node from list.
       proc[prev].next = proc[curr].next;
       proc[curr].next = -1;
-      // printf("Releasing %d\n", prev);
+      printf("Releasing %d\n", prev);
       release_lock(prev);
-      // printf("Releasing %d\n", curr);
+      printf("Releasing %d\n", curr);
       release_lock(curr);
       return 1;
     }
-    // printf("Releasing %d\n", prev);
+    printf("Releasing %d\n", prev);
     release_lock(prev);
     prev = curr;
     curr = getNext(curr);
   }
-  // printf("Releasing %d\n", prev);
+  printf("Releasing %d\n", prev);
   release_lock(prev);
   return 0;                        // Node to remove not found (it's index).
 }
@@ -761,7 +761,7 @@ wait(uint64 addr)
 void
 scheduler(void)
 {
-  printf("entered scheduler123\n");
+  printf("entered scheduler\n");
   struct proc *p;
   struct cpu *c = mycpu();
   if (cpuid() != 0)
