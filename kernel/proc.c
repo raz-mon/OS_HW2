@@ -168,7 +168,7 @@ void addLink(int *first_ind, int to_add){
   // Handle case of empty list (index=-1).
   if(temp_ind == -1){
     *first_ind = to_add;
-    printf("added process in index %d, to a list\n", to_add);
+    // printf("added process in index %d, to a list\n", to_add);
     return;
   }
   // Acquire first lock
@@ -302,9 +302,9 @@ procinit(void)
       p->ind = i;
       p->cpu_num = 0;
       i++;
-      if (p->pid != 1){
+      // if (p->pid != 1){
         addLink(&unused, p->ind);       // Add link to the unused list, if this is not the init proc.
-      }
+      // }
   }
   // printf("unused list: \n");
   // printList(&unused);
