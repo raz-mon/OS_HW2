@@ -287,7 +287,6 @@ procinit(void)
   }
   // printf("unused list: \n");
   // printList(&unused);
-  printf("Finished procinit.\n");
 }
 
 // Must be called with interrupts disabled,
@@ -347,7 +346,7 @@ allocpid() {
 static struct proc*
 allocproc(void)
 {
-  printf("Entered allocproc\n");
+  // printf("Entered allocproc\n");
   struct proc *p;
   // Added
   int index = removeFirst(&unused);
@@ -394,7 +393,7 @@ found:
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
 
-  printf("Exiting allocproc\n");
+  // printf("Exiting allocproc\n");
   return p;
 }
 
@@ -510,7 +509,7 @@ userinit(void)
   addLink(&cpus[p->cpu_num].first, p->ind);                 // Add this link to this cpu's list.
   release(&p->lock);
 
-  printf("Finished userinit.\n");
+  // printf("Finished userinit.\n");
 }
 
 // Grow or shrink user memory by n bytes.
@@ -710,7 +709,7 @@ wait(uint64 addr)
 void
 scheduler(void)
 {
-  printf("entered scheduler\n");
+  // printf("entered scheduler\n");
   struct proc *p;
   struct cpu *c = mycpu();
   if (cpuid() != 0)
@@ -718,26 +717,26 @@ scheduler(void)
   
   c->proc = 0;
   for(;;){
-    printf("Entered for loop\n");
+    // printf("Entered for loop\n");
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
 
-    printf("entered scheduler loop\n");
-    printf("schedulr cpu first index of cpu %d: %d\n", cpuid(), c->first);
+    // printf("entered scheduler loop\n");
+    // printf("schedulr cpu first index of cpu %d: %d\n", cpuid(), c->first);
     
     int index;
     while (c->first != -1)      // Otherwise no process to run in it's list.
     {
-      printf("schedulr entered while\n");
+      // printf("schedulr entered while\n");
       index = removeFirst(&(c->first));
-      printf("schedulr remove index: %d\n", index);
+      // printf("schedulr remove index: %d\n", index);
       p = &(proc[index]);
       acquire(&(p->lock));
       if(p->state != RUNNABLE){release(&p->lock); break;}
       p->state = RUNNING;
       c->proc = p;
       // release_lock(index);   // What is this for?
-      printf("schedulr reached here 4\n");
+      // printf("schedulr reached here 4\n");
       swtch(&c->context, &p->context);
       // Process is done running for now.
       // It should have changed its p->state before coming back.
