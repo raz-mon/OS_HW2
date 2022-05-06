@@ -141,9 +141,19 @@ int getNextLink(int ind){
 void printList(int *first){
   // No locking at the moment. So this can show false results.
   int temp = *first;
-  while (temp != -1){
+  get_lock(temp);
+  int next;
+  for (;;){
     printf("%d, ", temp);
-    temp = getNext(temp);
+    if (getNext(temp) != -1){
+      get_lock(getNext(temp));
+      release_lock(temp);
+      temp = getNext(temp);
+    }
+    else{
+      release_lock(temp);
+      break;
+    }
   }
   printf("\n");
 }
@@ -509,7 +519,7 @@ userinit(void)
   
   p->state = RUNNABLE;
   //Added
-  p->cpu_num = 0;
+  p->cpu_num = cpuid();
   cpus[p->cpu_num].process_counter = 1;
   // add p to cpu runnable list
   addLink(&cpus[p->cpu_num].first, p->ind);
