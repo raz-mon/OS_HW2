@@ -306,8 +306,8 @@ procinit(void)
         addLink(&unused, p->ind);      // Add link to the unused list, if this is not the init proc which is used.
       }
   }
-  printf("unused list: \n");
-  printList(&unused);
+  // printf("unused list: \n");
+  // printList(&unused);
 }
 
 // Must be called with interrupts disabled,
@@ -525,6 +525,7 @@ userinit(void)
   cpus[p->cpu_num].process_counter = 1;
   // add p to cpu runnable list
   addLink(&cpus[p->cpu_num].first, p->ind);
+  printf("added link of process in index %d", p->ind);
 
   release(&p->lock);
 }
