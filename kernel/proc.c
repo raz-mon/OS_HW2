@@ -169,6 +169,7 @@ void addLink(int *first_ind, int to_add){
   int temp_ind = *first_ind;
   // Handle case of empty list (index=-1).
   if(temp_ind == -1){
+    printf("lalali lalila\n");
     *first_ind = to_add;
     printf("added process in index %d, to a list.\n", to_add);
     printf("Releasing %d\n", to_add);
