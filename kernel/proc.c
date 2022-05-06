@@ -147,9 +147,9 @@ void printList(int *first){
     printf("%d, ", temp);
     if (getNext(temp) != -1){
       next = getNext(temp);
-      get_lock(getNext(temp));
+      get_lock(next);
       release_lock(temp);
-      temp = getNext(temp);
+      temp = next;
     }
     else{
       release_lock(temp);
