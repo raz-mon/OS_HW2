@@ -28,7 +28,6 @@ acquire(struct spinlock *lk)
     // End of addition.
     panic("acquire");
   }
-    // panic("acquire. Problematic lock: %s. Held by cpu: %d", lk->name, lk->cpu->ind);
 
   // On RISC-V, sync_lock_test_and_set turns into an atomic swap:
   //   a5 = 1

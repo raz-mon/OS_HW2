@@ -632,7 +632,6 @@ fork(void)
   //Added
   np->cpu_num = p->cpu_num;
   addLink(&cpus[np->cpu_num].first, np->ind);
-
   release(&np->lock);
 
   return pid;
@@ -769,6 +768,7 @@ scheduler(void)
   
   c->proc = 0;
   for(;;){
+    printf("Entered for loop\n");
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
 
