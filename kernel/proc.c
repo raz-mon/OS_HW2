@@ -761,11 +761,11 @@ wait(uint64 addr)
 void
 scheduler(void)
 {
-  printf("entered scheduler\n");
+  printf("entered scheduler123\n");
   struct proc *p;
   struct cpu *c = mycpu();
   if (cpuid() != 0)
-    c->first = -1;              // Initialize 'first' field of other cpus.
+    c->first = -1;              // Initialize 'first' field of other cpus (0 was initialized in procinit).
   
   c->proc = 0;
   for(;;){
