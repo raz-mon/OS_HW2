@@ -162,7 +162,7 @@ void printList(int *first){
 // Add a link to a "linked-list" to the END of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
 void addLink(int *first_ind, int to_add){
-  // printf("Added ind %d to a list!");
+  printf("Added ind %d to a list", to_add);
 
   int temp_ind = *first_ind;
   // Handle case of empty list (index=-1).
@@ -172,20 +172,20 @@ void addLink(int *first_ind, int to_add){
     return;
   }
   // Acquire first lock
-  printf("Taking %d\n", temp_ind);
+  // printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);
   int next_ind = proc[temp_ind].next;
   while (next_ind != -1){
-    printf("Taking %d\n", next_ind);
+    // printf("Taking %d\n", next_ind);
     get_lock(next_ind);
-    printf("Releasing %d\n", temp_ind);
+    // printf("Releasing %d\n", temp_ind);
     release_lock(temp_ind);
     temp_ind = next_ind;
     next_ind = getNext(temp_ind);
   }
   // Add Syncronizetion
   proc[temp_ind].next = to_add;
-  printf("Releasing %d\n", temp_ind);
+  // printf("Releasing %d\n", temp_ind);
   release_lock(temp_ind);
 }
 
@@ -221,34 +221,34 @@ int removeFirst(int *first_p){
 // Remove link with index (in the proc_table) ind from the list.
 // Return 1 (true) for success, 0 (false) for failure.
 int remove(int *first_p, int ind){
-  printf("\nRemoving process in index %d from a list\n\n");
+  // printf("\nRemoving process in index %d from a list\n\n");
   // Handle empty list case.
   if(*first_p == -1){
     return -1;
   }
 
   // List is not empty.
-  printf("Taking %d\n", *first_p);
+  // printf("Taking %d\n", *first_p);
   get_lock(*first_p);                       // Get lock of first node.
 
   if (ind == *first_p){                 // The element we wish to extract from the list is the first element.
     if (getNext(*first_p) == -1){       // List of one element, which is the wanted element.
       int temp = *first_p;
       *first_p = -1;
-      printf("Releasing %d\n", temp);
+      // printf("Releasing %d\n", temp);
       release_lock(temp);
       return 1;
     }
     else{                               // List of more than one element.
         int temp = *first_p;
         int temp2 = getNext(*first_p);
-        printf("Taking %d\n", temp2);
+        // printf("Taking %d\n", temp2);
         get_lock(temp2);
         *first_p = temp2;
         proc[temp].next = -1;
-        printf("Releasing %d\n", temp);
+        // printf("Releasing %d\n", temp);
         release_lock(temp);
-        printf("Releasing %d\n", temp2);
+        // printf("Releasing %d\n", temp2);
         release_lock(temp2);
         return 1;
     }
@@ -259,7 +259,7 @@ int remove(int *first_p, int ind){
   int curr = getNext(prev);
   // The node to be removed is not the first node in the linked-list.
   while (curr != -1){
-    printf("Taking %d\n", curr);
+    // printf("Taking %d\n", curr);
     get_lock(curr);                     // Lock "current" node (process).
     if (curr == ind){
 
@@ -268,18 +268,18 @@ int remove(int *first_p, int ind){
       // Delete node from list.
       proc[prev].next = proc[curr].next;
       proc[curr].next = -1;
-      printf("Releasing %d\n", prev);
+      // printf("Releasing %d\n", prev);
       release_lock(prev);
-      printf("Releasing %d\n", curr);
+      // printf("Releasing %d\n", curr);
       release_lock(curr);
       return 1;
     }
-    printf("Releasing %d\n", prev);
+    // printf("Releasing %d\n", prev);
     release_lock(prev);
     prev = curr;
     curr = getNext(curr);
   }
-  printf("Releasing %d\n", prev);
+  // printf("Releasing %d\n", prev);
   release_lock(prev);
   return 0;                        // Node to remove not found (it's index).
 }
