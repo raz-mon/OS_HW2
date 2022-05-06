@@ -62,17 +62,17 @@ int getNext(int ind){
 void get_lock(int ind){
   // The 'cpuid()' part can cause problems if the interrupts are not off.
   // Be aware... Or beware.
-  if (proc[ind].list_lock.cpu == mycpu())
+  if (proc[ind].list_lock.cpu == mycpu()){
     printf("cpu number %d already has the lock he's trying to catch (get_lock). proc index: %d\n", cpuid(), ind);
-  else
     acquire(&proc[ind].list_lock);
+  }
 }
 
 void release_lock(int ind){
-  if (proc[ind].list_lock.cpu != mycpu())
+  if (proc[ind].list_lock.cpu != mycpu()){
     printf("cpu number %d trying to RELEASE lock not in it's posession. proc: %s\n", cpuid(), myproc()->name);
-  else
     release(&proc[ind].list_lock);
+  } 
 }
 
 void increase_cpu_counter(int cpu_index){
