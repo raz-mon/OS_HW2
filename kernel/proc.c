@@ -395,6 +395,7 @@ allocpid() {
 static struct proc*
 allocproc(void)
 {
+  printf("Entered allocproc\n");
   struct proc *p;
   // Added
   int index = removeFirst(&unused);
@@ -441,6 +442,7 @@ found:
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
 
+  printf("Exiting allocproc\n");
   return p;
 }
 
@@ -552,7 +554,7 @@ userinit(void)
   p->cpu_num = cpuid();
   cpus[p->cpu_num].process_counter = 1;
   // add p to cpu runnable list
-  remove(&unused, p->ind);                                  // Remove this link from the unused list.
+  // Note: The process was already removed from the 'unused' list in 'allocproc'.
   addLink(&cpus[p->cpu_num].first, p->ind);                 // Add this link to this cpu's list.
   release(&p->lock);
 
