@@ -63,14 +63,14 @@ void get_lock(int ind){
   // The 'cpuid()' part can cause problems if the interrupts are not off.
   // Be aware... Or beware.
   if (proc[ind].list_lock.cpu == mycpu())
-    printf("cpu number %d already has the lock he's trying to catch (get_lock). proc index: %d", cpuid(), ind);
+    printf("cpu number %d already has the lock he's trying to catch (get_lock). proc index: %d\n", cpuid(), ind);
   else
     acquire(&proc[ind].list_lock);
 }
 
 void release_lock(int ind){
   if (proc[ind].list_lock.cpu != mycpu())
-    printf("cpu number %d trying to RELEASE lock not in it's posession. proc: %s", cpuid(), myproc()->name);
+    printf("cpu number %d trying to RELEASE lock not in it's posession. proc: %s\n", cpuid(), myproc()->name);
   else
     release(&proc[ind].list_lock);
 }
@@ -249,11 +249,12 @@ int remove(int *first_p, int ind){
   int curr = getNext(prev);
   // The node to be removed is not the first node in the linked-list.
   while (curr != -1){
+    printf("Taking list-lock of process of index %d\n", curr);
     get_lock(curr);                     // Lock "current" node (process).
     if (curr == ind){
 
       printf("\n\nfound it!!!@#!@#!@#!@#!\n\n");
-      
+
       // Delete node from list.
       proc[prev].next = proc[curr].next;
       proc[curr].next = -1;
@@ -261,6 +262,7 @@ int remove(int *first_p, int ind){
       release_lock(curr);
       return 1;
     }
+    printf("Releasing lock of process of index %d\n", prev);
     release_lock(prev);
     prev = curr;
     curr = getNext(curr);
