@@ -63,7 +63,7 @@ void get_lock(int ind){
   // The 'cpuid()' part can cause problems if the interrupts are not off.
   // Be aware... Or beware.
   if (proc[ind].list_lock.cpu == mycpu())
-    printf("cpu number %d already has the lock he's trying to catch (get_lock). proc: %s", cpuid(), myproc()->name);
+    printf("cpu number %d already has the lock he's trying to catch (get_lock). proc index: %d", cpuid(), myproc()->ind);
   else
     acquire(&proc[ind].list_lock);
 }
@@ -524,9 +524,6 @@ userinit(void)
   // add p to cpu runnable list
   remove(&unused, p->ind);                                  // Remove this link from the unused list.
   addLink(&cpus[p->cpu_num].first, p->ind);                 // Add this link to this cpu's list.
-  printf("added link of init process with index %d\n", p->ind);
-  printf("pid of the init process: %d\n", p->pid);
-
   release(&p->lock);
 }
 
