@@ -249,9 +249,11 @@ int remove(int *first_p, int ind){
   int curr = getNext(prev);
   // The node to be removed is not the first node in the linked-list.
   while (curr != -1){
-    printf("another one");
     get_lock(curr);                     // Lock "current" node (process).
     if (curr == ind){
+
+      printf("\n\nfound it!!!@#!@#!@#!@#!\n\n");
+      
       // Delete node from list.
       proc[prev].next = proc[curr].next;
       proc[curr].next = -1;
