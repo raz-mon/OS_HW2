@@ -169,25 +169,25 @@ void addLink(int *first_ind, int to_add){
   // Handle case of empty list (index=-1).
   if(temp_ind == -1){
     *first_ind = to_add;
-    // printf("added process in index %d, to a list\n", to_add);
+    printf("added process in index %d, to a list\n", to_add);
     return;
   }
   // Acquire first lock
-  // printf("Taking %d\n", temp_ind);
+  printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);
   int next_ind = proc[temp_ind].next;
   while (next_ind != -1){
-    // printf("Taking %d\n", next_ind);
+    printf("Taking %d\n", next_ind);
     get_lock(next_ind);
-    // printf("Releasing %d\n", temp_ind);
+    printf("Releasing %d\n", temp_ind);
     release_lock(temp_ind);
     temp_ind = next_ind;
     next_ind = getNext(temp_ind);
   }
-  // Add Syncronizetion
   proc[temp_ind].next = to_add;
-  // printf("Releasing %d\n", temp_ind);
+  printf("Releasing %d\n", temp_ind);
   release_lock(temp_ind);
+  printf("Releasing %d\n", to_add);
   release_lock(to_add);
 }
 
