@@ -249,6 +249,7 @@ int remove(int *first_p, int ind){
   int curr = getNext(prev);
   // The node to be removed is not the first node in the linked-list.
   while (curr != -1){
+    printf("another one");
     get_lock(curr);                     // Lock "current" node (process).
     if (curr == ind){
       // Delete node from list.
@@ -522,9 +523,7 @@ userinit(void)
   p->cpu_num = cpuid();
   cpus[p->cpu_num].process_counter = 1;
   // add p to cpu runnable list
-  printf("removing process of index %d from unused list", p->ind);
   remove(&unused, p->ind);                                  // Remove this link from the unused list.
-  printf("Adding it to cpu number %d's list", p->cpu_num);
   addLink(&cpus[p->cpu_num].first, p->ind);                 // Add this link to this cpu's list.
   release(&p->lock);
 }
