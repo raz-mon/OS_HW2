@@ -69,10 +69,10 @@ void get_lock(int ind){
 }
 
 void release_lock(int ind){
-  if (proc[ind].list_lock.cpu != mycpu()){
-    printf("cpu number %d trying to RELEASE lock not in it's posession. proc: %s\n", cpuid(), myproc()->name);
+  //if (proc[ind].list_lock.cpu != mycpu()){
+   // printf("cpu number %d trying to RELEASE lock not in it's posession. proc: %s\n", cpuid(), myproc()->name);
     release(&proc[ind].list_lock);
-  } 
+  //} 
 }
 
 void increase_cpu_counter(int cpu_index){
