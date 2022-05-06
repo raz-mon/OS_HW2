@@ -187,7 +187,6 @@ void addLink(int *first_ind, int to_add){
     temp_ind = next_ind;
     next_ind = getNext(temp_ind);
   }
-  // printf("adfafasdfkalsdfjaskfasfjaksdfjalskdfjaslkfasdjfksafskf");
   proc[temp_ind].next = to_add;
   printf("Releasing %d\n", temp_ind);
   release_lock(temp_ind);
@@ -199,7 +198,7 @@ void addLink(int *first_ind, int to_add){
 // Return the value of the first "link".
 int removeFirst(int *first_p){
   // The first part is not fully synchronized - Think about a way to overcome this.
-  
+  printf("\n\nEntered removeFirst\n\n");
   // Empty list case.
   if (*first_p == -1){
     return -1;
@@ -207,18 +206,23 @@ int removeFirst(int *first_p){
 
   // Non-empty list case.
   int temp_ind = *first_p;
+  printf("Taking %d", temp_ind);
   get_lock(temp_ind);           // Take first node's lock.
   int next_ind = getNext(*first_p);     // No concurency problem here, since the first node is locked --> No-one can change his successor.
   if (next_ind != -1){            // List has more than one component.
+    printf("Taking %d", next_ind);
     get_lock(next_ind);
     *first_p = next_ind;
     proc[temp_ind].next = -1;     // No longer points at the next link (process).
+    printf("Releasing %d", temp_ind);
     release_lock(temp_ind);
+    printf("Releasing %d", next_ind);
     release_lock(next_ind);
     return temp_ind;
   }
   else{                           // 1-component list.
     *first_p = -1;                // Empty list.
+    printf("Releasing %d", temp_ind);
     release_lock(temp_ind);       // Release it's lock.
     return temp_ind;              // Return index removed.
   }
@@ -227,7 +231,7 @@ int removeFirst(int *first_p){
 // Remove link with index (in the proc_table) ind from the list.
 // Return 1 (true) for success, 0 (false) for failure.
 int remove(int *first_p, int ind){
-  // printf("\nRemoving process in index %d from a list\n\n");
+  printf("\n\nEntered remove. Removing process in index %d from a list\n\n");
   // Handle empty list case.
   if(*first_p == -1){
     return -1;
