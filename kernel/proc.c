@@ -221,6 +221,7 @@ int removeFirst(int *first_p){
 // Remove link with index (in the proc_table) ind from the list.
 // Return 1 (true) for success, 0 (false) for failure.
 int remove(int *first_p, int ind){
+  printf("\nRemoving process in index %d from a list\n\n");
   // Handle empty list case.
   if(*first_p == -1){
     return -1;
