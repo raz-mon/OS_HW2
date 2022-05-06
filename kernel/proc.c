@@ -169,7 +169,6 @@ void addLink(int *first_ind, int to_add){
   int temp_ind = *first_ind;
   // Handle case of empty list (index=-1).
   if(temp_ind == -1){
-    printf("lalali lalila\n");
     *first_ind = to_add;
     printf("added process in index %d, to a list.\n", to_add);
     printf("Releasing %d\n", to_add);
@@ -317,6 +316,8 @@ proc_mapstacks(pagetable_t kpgtbl) {
 void
 procinit(void)
 {
+  mycpu()->first = -1;                      // Initialize the 'first' field of the first cpu (applied to cpu 0 only!).
+
   struct proc *p;
   // Added
   int i = 0;
@@ -763,6 +764,8 @@ scheduler(void)
   printf("entered scheduler\n");
   struct proc *p;
   struct cpu *c = mycpu();
+  if (cpuid() != 0)
+    c->first = -1;              // Initialize 'first' field of other cpus.
   
   c->proc = 0;
   for(;;){
