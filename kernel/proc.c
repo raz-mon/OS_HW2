@@ -215,7 +215,7 @@ int removeFirst(int *first_p){
 }
 
 // Remove link with index (in the proc_table) ind from the list.
-// Return 0 for success, -1 for failure.
+// Return 1 (true) for success, 0 (false) for failure.
 int remove(int *first_p, int ind){
   // Handle empty list case.
   if(*first_p == -1){
@@ -225,14 +225,14 @@ int remove(int *first_p, int ind){
   // List is not empty.
   get_lock(*first_p);                       // Get lock of first node.
 
-  if (ind == *first_p){
-    if (getNext(*first_p) == -1){
+  if (ind == *first_p){                 // The element we wish to extract from the list is the first element.
+    if (getNext(*first_p) == -1){       // List of one element, which is the wanted element.
       int temp = *first_p;
       *first_p = -1;
       release_lock(temp);
-      return 0;
+      return 1;
     }
-    else{
+    else{                               // List of more than one element.
         int temp = *first_p;
         int temp2 = getNext(*first_p);
         get_lock(temp2);
@@ -240,7 +240,7 @@ int remove(int *first_p, int ind){
         proc[temp].next = -1;
         release_lock(temp);
         release_lock(temp2);
-        return 0;
+        return 1;
     }
   }
 
@@ -254,16 +254,16 @@ int remove(int *first_p, int ind){
       // Delete node from list.
       proc[prev].next = proc[curr].next;
       proc[curr].next = -1;
-      release_lock(curr);
       release_lock(prev);
-      return 0;
+      release_lock(curr);
+      return 1;
     }
     release_lock(prev);
     prev = curr;
     curr = getNext(curr);
   }
   release_lock(prev);
-  return -1;                        // Node to remove not found (it's index).
+  return 0;                        // Node to remove not found (it's index).
 }
 
 
@@ -302,9 +302,7 @@ procinit(void)
       p->ind = i;
       p->cpu_num = 0;
       i++;
-      if (p->pid != 1){
-        addLink(&unused, p->ind);      // Add link to the unused list, if this is not the init proc which is used.
-      }
+      addLink(&unused, p->ind);      // Add link to the unused list, if this is not the init proc which is used.
   }
   // printf("unused list: \n");
   // printList(&unused);
@@ -524,8 +522,10 @@ userinit(void)
   p->cpu_num = cpuid();
   cpus[p->cpu_num].process_counter = 1;
   // add p to cpu runnable list
-  addLink(&cpus[p->cpu_num].first, p->ind);
-  printf("added link of process in index %d", p->ind);
+  remove(&unused, p->ind);                                  // Remove this link from the unused list.
+  addLink(&cpus[p->cpu_num].first, p->ind);                 // Add this link to this cpu's list.
+  printf("added link of init process with index %d\n", p->ind);
+  printf("pid of the init process: %d\n", p->pid);
 
   release(&p->lock);
 }
