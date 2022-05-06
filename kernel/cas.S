@@ -7,7 +7,7 @@ cas:
     lr.w t0, (a0)       # Load original value.
     bne t0, a1, fail    # Doesn't match, so fail.
     sc.w a0, a2, (a0)   # Try to update.
-    li a0, 0            # Return value is a0.
+    # li a0, 0            # Return value is a0.
     jr ra               # Return 0, i.e., FALSE for sucess.
 fail:
     li a0, 1            # Set return to failure. --> Returns TRUE for failure (i.e., 1).
