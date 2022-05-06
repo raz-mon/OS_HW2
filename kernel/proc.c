@@ -185,7 +185,7 @@ int removeFirst(int *first_p){
 
   // Non-empty list case.
   int temp_ind = *first_p;
-  get_lock(*first_p);           // Take first node's lock.
+  get_lock(temp_ind);           // Take first node's lock.
   int next_ind = getNext(*first_p);     // No concurency problem here, since the first node is locked --> No-one can change his successor.
   if (next_ind != -1){            // List has more than one component.
     get_lock(next_ind);
@@ -737,10 +737,9 @@ scheduler(void)
       if(p->state != RUNNABLE){release(&p->lock); break;}
       p->state = RUNNING;
       c->proc = p;
-      // release_lock(index);
+      // release_lock(index);   // What is this for?
       printf("schedulr reached here 4\n");
       swtch(&c->context, &p->context);
-      printf("schedulr reached here: after swtch\n");
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;

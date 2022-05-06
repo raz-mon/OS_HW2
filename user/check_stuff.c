@@ -4,10 +4,10 @@
 
 int main(int argc, char *argv[]){
     
-    check_LL();
-    return 1;
+    // check_LL();
+    // return 1;
     
-    /*
+    
     // Check the cas functionality (no two processes with the same pid).
     int n = 4;
     // Print all pid's, make sure none of them repeat.
@@ -16,6 +16,6 @@ int main(int argc, char *argv[]){
             printf("pid: %d\n", getpid());       
         }
     }
-    */
+    
     return 0;
 }
