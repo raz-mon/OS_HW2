@@ -164,6 +164,7 @@ void printList(int *first){
 void addLink(int *first_ind, int to_add){
   printf("Adding ind %d to a list\n", to_add);
 
+  printf("Taking %d", to_add);
   get_lock(to_add);
   int temp_ind = *first_ind;
   // Handle case of empty list (index=-1).
