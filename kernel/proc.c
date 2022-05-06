@@ -941,12 +941,12 @@ wakeup(void *chan)
       acquire(&p->lock);
       if(p->state == SLEEPING && p->chan == chan) {
         p->state = RUNNABLE;
+        //Added
+        // remove p from sleeping
+        remove(&sleeping, p->ind);
+        // add p to cpu's runnable list
+        addLink(&cpus[p->cpu_num].first, p->ind);
       }
-      //Added
-      // remove p from sleeping
-      remove(&sleeping, p->ind);
-      // add p to cpu's runnable list
-      addLink(&cpus[p->cpu_num].first,p->ind);
       release(&p->lock);
     }
   }
@@ -967,11 +967,11 @@ kill(int pid)
       if(p->state == SLEEPING){
         // Wake process from sleep().
         p->state = RUNNABLE;
+        // Added
+        remove(&sleeping, p->ind);
+        addLink(&cpus[p->ind].first, p->ind);
       }
       release(&p->lock);
-      // Added
-      remove(&sleeping, p->ind);
-      addLink(&cpus[p->ind].first, p->ind);
       return 0;
     }
     release(&p->lock);
