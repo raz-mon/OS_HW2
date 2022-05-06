@@ -142,7 +142,7 @@ void printList(int *first){
   // No locking at the moment. So this can show false results.
   int temp = *first;
   get_lock(temp);
-  int next;
+  int next; 
   for (;;){
     printf("%d, ", temp);
     if (getNext(temp) != -1){
