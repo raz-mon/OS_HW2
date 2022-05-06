@@ -302,9 +302,9 @@ procinit(void)
       p->ind = i;
       p->cpu_num = 0;
       i++;
-      // if (p->pid != 1){
+      if (p->pid != 1){
         addLink(&unused, p->ind);       // Add link to the unused list, if this is not the init proc.
-      // }
+      }
   }
   // printf("unused list: \n");
   // printList(&unused);
