@@ -162,8 +162,9 @@ void printList(int *first){
 // Add a link to a "linked-list" to the END of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
 void addLink(int *first_ind, int to_add){
-  printf("Added ind %d to a list", to_add);
+  printf("Added ind %d to a list\n", to_add);
 
+  get_lock(to_add);
   int temp_ind = *first_ind;
   // Handle case of empty list (index=-1).
   if(temp_ind == -1){
@@ -187,6 +188,7 @@ void addLink(int *first_ind, int to_add){
   proc[temp_ind].next = to_add;
   // printf("Releasing %d\n", temp_ind);
   release_lock(temp_ind);
+  release_lock(to_add);
 }
 
 // Remove the first "link" of the linked-list.
