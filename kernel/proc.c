@@ -201,28 +201,29 @@ int removeFirst(int *first_p){
   printf("\n\nEntered removeFirst\n\n");
   // Empty list case.
   if (*first_p == -1){
+    printf("Oh naaa... Sorry empty list!");
     return -1;
   }
 
   // Non-empty list case.
   int temp_ind = *first_p;
-  printf("Taking %d", temp_ind);
+  printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);           // Take first node's lock.
   int next_ind = getNext(*first_p);     // No concurency problem here, since the first node is locked --> No-one can change his successor.
   if (next_ind != -1){            // List has more than one component.
-    printf("Taking %d", next_ind);
+    printf("Taking %d\n", next_ind);
     get_lock(next_ind);
     *first_p = next_ind;
     proc[temp_ind].next = -1;     // No longer points at the next link (process).
-    printf("Releasing %d", temp_ind);
+    printf("Releasing %d\n", temp_ind);
     release_lock(temp_ind);
-    printf("Releasing %d", next_ind);
+    printf("Releasing %d\n", next_ind);
     release_lock(next_ind);
     return temp_ind;
   }
   else{                           // 1-component list.
     *first_p = -1;                // Empty list.
-    printf("Releasing %d", temp_ind);
+    printf("Releasing %d\n", temp_ind);
     release_lock(temp_ind);       // Release it's lock.
     return temp_ind;              // Return index removed.
   }
