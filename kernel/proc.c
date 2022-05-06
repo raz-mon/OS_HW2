@@ -62,10 +62,10 @@ int getNext(int ind){
 void get_lock(int ind){
   // The 'cpuid()' part can cause problems if the interrupts are not off.
   // Be aware... Or beware.
-  if (proc[ind].list_lock.cpu == mycpu()){
-    printf("cpu number %d already has the lock he's trying to catch (get_lock). proc index: %d\n", cpuid(), ind);
+  //if (proc[ind].list_lock.cpu == mycpu()){
+  //  printf("cpu number %d already has the lock he's trying to catch (get_lock). proc index: %d\n", cpuid(), ind);
     acquire(&proc[ind].list_lock);
-  }
+ // }
 }
 
 void release_lock(int ind){
@@ -187,6 +187,7 @@ void addLink(int *first_ind, int to_add){
     temp_ind = next_ind;
     next_ind = getNext(temp_ind);
   }
+  printf("adfafasdfkalsdfjaskfasfjaksdfjalskdfjaslkfasdjfksafskf");
   proc[temp_ind].next = to_add;
   printf("Releasing %d\n", temp_ind);
   release_lock(temp_ind);
