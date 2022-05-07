@@ -643,7 +643,7 @@ exit(int status)
   // add p to the zombie list
   addLink(&zombie, p->ind);
   // End of addition.
-  
+
   release(&wait_lock);
 
   // Jump into the scheduler, never to return.
@@ -967,7 +967,7 @@ check_LL(void)
   printList(&newList);
   
   removed = remove(&newList, 57);
-  printf("removed link with proc ind: %d\n", removed);
+  printf("removed link with proc ind: %d\n", 57);
   
   printList(&newList);
 
