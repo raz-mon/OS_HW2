@@ -717,13 +717,8 @@ scheduler(void)
   
   c->proc = 0;
   for(;;){
-    // printf("Entered for loop\n");
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
-
-    // printf("entered scheduler loop\n");
-    // printf("schedulr cpu first index of cpu %d: %d\n", cpuid(), c->first);
-    
     int index;
     while (c->first != -1)      // Otherwise no process to run in it's list.
     {
