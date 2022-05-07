@@ -83,7 +83,7 @@ void decreace_cpu_counter(int cpu_index){
 struct cpu*
 find_least_used_cpu(void){
   struct cpu *winner;
-  uint64 min_process_count = 18446744073709551615;      // Initialized to maximum of uint64;
+  uint64 min_process_count = 1844674407370955;      // Initialized to maximum of uint64;
   for (struct cpu *c1 = cpus; c1 < &cpus[NCPU]; c1++){
     if (c1->process_count < min_process_count){
       winner = c1;
@@ -606,7 +606,7 @@ fork(void)
   // Find cpu with least process_count, add the new process to it's ready-list and incement it's counter.
   struct cpu *least_used_cpu = find_least_used_cpu();
   np->cpu_num = least_used_cpu->cpu_id;
-  addLink(least_used_cpu, np->ind);
+  addLink(&least_used_cpu->first, np->ind);
   increase_cpu_counter(least_used_cpu);
   
   release(&np->lock);
