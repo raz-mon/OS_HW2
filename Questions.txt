@@ -1,3 +1,5 @@
 - Where is the 'state' field of each process changed to 'unused' in the beginning of the execution?
     Can't find it.
 
+- Make sure that 'cpuid()' actually returns the index of the current cpu in the cpus array.
+

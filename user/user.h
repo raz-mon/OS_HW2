@@ -25,8 +25,9 @@ int sleep(int);
 int uptime(void);
 
 // Added:
-int set_cpu(int);
+int set_cpu(int cpu_num);
 int get_cpu(void);
+int cpu_process_count(int cpu_num);
 int check_LL(void);
 
 // ulib.c

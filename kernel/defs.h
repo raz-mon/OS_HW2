@@ -108,10 +108,11 @@ void            procdump(void);
 int             getNext(int ind);
 int             set_cpu(int cpu_num);
 int             get_cpu(void);
+int             cpu_process_count(int cpu_num);
 void            check_LL(void);
-void increase_cpu_counter(int cpu_index);
-void decreace_cpu_counter(int cpu_index);
-int steal_procces();
+void            increase_cpu_counter(int cpu_index);
+void            decreace_cpu_counter(int cpu_index);
+int             steal_procces();
 
 // swtch.S
 void            swtch(struct context*, struct context*);

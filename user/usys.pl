@@ -40,4 +40,5 @@ entry("uptime");
 # Added:
 entry("set_cpu");
 entry("get_cpu");
+entry("cpu_process_count");
 entry("check_LL");

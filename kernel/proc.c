@@ -65,11 +65,11 @@ void release_lock(int ind){
   release(&proc[ind].list_lock);
 }
 
-void increase_cpu_counter(int cpu_index){
+void increase_cpu_counter(struct cpu *c){
   int old;
   do{
-    old = cpus[cpu_index].process_count;
-  } while (cas(&cpus[cpu_index].process_count, old, old+1));
+    old = c->process_count;
+  } while (cas(c->process_count, old, old+1));
 }
 
 void decreace_cpu_counter(int cpu_index){
@@ -80,11 +80,25 @@ void decreace_cpu_counter(int cpu_index){
   } while (cas(&cpus[cpu_index].process_count, old, old - 1));
 }
 
+struct cpu*
+find_least_used_cpu(void){
+  struct cpu *winner;
+  uint64 min_process_count = 18446744073709551615;      // Initialized to maximum of uint64;
+  for (struct cpu *c1 = cpus; c1 < &cpus[NCPU]; c1++){
+    if (c1->process_count < min_process_count){
+      winner = c1;
+      min_process_count = c1->process_count;
+    }
+  }
+  return winner;
+}
+
 // Steal a process from one of the cpu's running in the system.
 int steal_process(){
   // Traverse the cpus array (array of cpus), until finding one with a non-empty ready-list.
   // Then, steal that process by removing it from it's ready-list, and changing it's cpu_num to -1 (will be changed to the right cpu
   // in the calling function). OR NOT. Can change this to perform all relevant procedures (sounds good!).
+  return -1;
 }
 
 /*    Old implementation - new function does different things.
@@ -276,6 +290,7 @@ void
 procinit(void)
 {
   mycpu()->first = -1;                      // Initialize the 'first' field of the first cpu (applied to cpu 0 only!).
+  mycpu()->cpu_id = cpuid();
 
   struct proc *p;
   // Added
@@ -588,8 +603,12 @@ fork(void)
   acquire(&np->lock);
   np->state = RUNNABLE;
   //Added
-  np->cpu_num = p->cpu_num;                     // Same cpu-num as the father process.
-  addLink(&cpus[np->cpu_num].first, np->ind);   // Adding process link to the father linked-list (after changing to RUNNABLE).
+  // Find cpu with least process_count, add the new process to it's ready-list and incement it's counter.
+  struct cpu *least_used_cpu = find_least_used_cpu();
+  np->cpu_num = least_used_cpu->cpu_id;
+  addLink(least_used_cpu, np->ind);
+  increase_cpu_counter(least_used_cpu);
+  
   release(&np->lock);
 
   return pid;
@@ -726,7 +745,8 @@ scheduler(void)
   int stealed_ind;
   if (cpuid() != 0){
     c->first = -1;              // Initialize 'first' field of other cpus (0 was initialized in procinit).
-    c->process_count = 0;
+    c->process_count = 0;       // Initialize 'process_count' of other cpus (0 was initialized in procinit).
+    c->cpu_id = cpuid();        // Initialize cpu_id of other cpus (0 was initialized in procinit).
   }
 
   c->proc = 0;
@@ -750,6 +770,7 @@ scheduler(void)
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
       addLink(&c->first, stealed_ind);
+      increase_cpu_counter(c);
       // decreace_cpu_counter(cpu_index);
       // increase_cpu_counter(cpuid());
     }
@@ -869,7 +890,7 @@ void
 wakeup(void *chan)
 {
   struct proc *p;
-  int min_process_count = UINT_MAX;
+  struct cpu *winner;
 
   for(p = proc; p < &proc[NPROC]; p++) {
     if(p != myproc()){
@@ -880,11 +901,10 @@ wakeup(void *chan)
         // remove p from sleeping
         remove(&sleeping, p->ind);
         // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
-        for (struct cpu *c = cpus; c < cpus[NCPU]; c++){
-
-        }
-
-        addLink(&cpus[p->cpu_num].first, p->ind);
+        winner = find_least_used_cpu();
+        // Add the process to the cpu with the lowest process_count, and increase its process_count.
+        addLink(winner->first, p->ind);
+        increase_cpu_counter(winner);
       }
       release(&p->lock);
     }
@@ -938,6 +958,16 @@ get_cpu(void)
 {
   struct proc *p = myproc();
   return p->cpu_num;
+}
+
+// Return the process_count of the cpu with id cpu_num, or (-1) if there is no such cpu in the system.
+int
+cpu_process_count(int cpu_num){
+  for (struct cpu *ct = cpus; ct < &cpus[NCPU]; ct++){
+    if (ct->cpu_id == cpu_num)
+      return ct->process_count;
+  }
+  return -1;
 }
 
 // Check the LinkedList implementation

@@ -27,7 +27,8 @@ struct cpu {
 
   // Added:
   int first;                  // Index of the first node (process) in the READY-list (RUNNABLE-list) of the cpu.
-  uint64 process_count;        // count the number of processes admitted to this cpu since the system started running.
+  uint64 process_count;       // count the number of processes admitted to this cpu since the system started running.
+  int cpu_id;                 // The id of this cpu (index in cpus array).
 };
 
 extern struct cpu cpus[NCPU];
