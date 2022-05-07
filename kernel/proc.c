@@ -92,7 +92,7 @@ find_least_used_cpu(void){
       min_process_count = c1->process_count;
     }
   }
-  if (found)
+  if (found==1)
     return winner;
   else{
     panic("Couldn't find a least used cpu - bug.");
