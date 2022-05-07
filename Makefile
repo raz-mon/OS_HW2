@@ -61,9 +61,10 @@ ifndef CPUS
 CPUS := 3
 endif
 
+
 CFLAGS = -Wall -Werror -O -fno-omit-frame-pointer -ggdb
 CFLAGS += -MD
-CFLAGS += -D $(CPUS)
+CFLAGS += -D (CPUS)
 CFLAGS += -mcmodel=medany
 CFLAGS += -ffreestanding -fno-common -nostdlib -mno-relax
 CFLAGS += -I.
