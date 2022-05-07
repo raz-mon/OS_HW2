@@ -869,7 +869,7 @@ void
 wakeup(void *chan)
 {
   struct proc *p;
-  int min_process_count = __UINT_MAX__;
+  int min_process_count = UINT_MAX;
 
   for(p = proc; p < &proc[NPROC]; p++) {
     if(p != myproc()){
