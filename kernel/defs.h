@@ -110,7 +110,7 @@ int             set_cpu(int cpu_num);
 int             get_cpu(void);
 int             cpu_process_count(int cpu_num);
 void            check_LL(void);
-void            increase_cpu_counter(int cpu_index);
+void            increase_cpu_counter(struct cpu *c);
 void            decreace_cpu_counter(int cpu_index);
 int             steal_procces();
 
