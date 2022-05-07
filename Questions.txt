@@ -3,3 +3,6 @@
 
 - Make sure that 'cpuid()' actually returns the index of the current cpu in the cpus array.
 
+- How can I get the number of cpus?
+
+

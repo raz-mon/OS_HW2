@@ -31,15 +31,6 @@ main()
     userinit();      // first user process
     __sync_synchronize();
     started = 1;
-
-  #ifdef CPUS
-  printf("lala1, %d!#!@#!@#!@#!@#!@#!@#\n\n", $(CPUS));
-  #endif
-
-  #ifndef CPUS
-  printf("lala2\n");
-  #endif
-
   } else {
     while(started == 0)
       ;
