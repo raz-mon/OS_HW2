@@ -92,7 +92,7 @@ find_least_used_cpu(void){
       min_process_count = c1->process_count;
     }
   }
-  if (found==1)
+  if (found)
     return winner;
   else{
     panic("Couldn't find a least used cpu - bug.");
@@ -759,10 +759,10 @@ scheduler(void)
   c->proc = 0;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
+    printf("cpu %d is trying to run a process\n", cpuid());
     intr_on();
     int ind;
     // if (c->first != -1)       // Ready list of the cpu not empty.
-    printf("cpu %d is trying to run process %d\n", cpuid(), myproc()->ind);
     while (c->first != -1)
     {
       ind = removeFirst(&c->first);
