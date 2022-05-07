@@ -296,6 +296,7 @@ proc_mapstacks(pagetable_t kpgtbl) {
 void
 procinit(void)
 {
+  // Initialize cpus 'special' fields.
   int j = 0;
   for (struct cpu *cp = cpus; cp < &cpus[NCPU]; cp++){
     cp->first = -1;
@@ -540,7 +541,7 @@ userinit(void)
   
   p->state = RUNNABLE;
   //Added
-  p->cpu_num = cpuid();
+  p->cpu_num = 0;
   cpus[p->cpu_num].process_count = 1;     // Initialize process_count of the first cpu with 1 (init-proc).
   // add p to cpu runnable list
   // Note: The process was already removed from the 'unused' list in 'allocproc'.
