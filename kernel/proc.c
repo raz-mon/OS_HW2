@@ -101,11 +101,22 @@ find_least_used_cpu(void){
 }
 
 // Steal a process from one of the cpu's running in the system.
-int steal_process(){
+int steal_process(void){
   // Traverse the cpus array (array of cpus), until finding one with a non-empty ready-list.
   // Then, steal that process by removing it from it's ready-list, and changing it's cpu_num to -1 (will be changed to the right cpu
   // in the calling function). OR NOT. Can change this to perform all relevant procedures (sounds good!).
-  return -1;
+  int out;
+  for (;;){
+    for (struct cpu *cp = cpus; cp < &cpus[5]; cp++){
+      if (cp->first != -1){
+        get_lock(cp->first);
+        out = removeFirst(&cp->first);
+        release_lock(&cp->first);
+        return out; 
+      }
+    }
+  }
+  // return -1;
 }
 
 /*    Old implementation - new function does different things.
@@ -757,7 +768,7 @@ scheduler(void)
   // printf("entered scheduler\n");
   struct proc *p;
   struct cpu *c = mycpu();
-  // int stealed_ind;
+  int stealed_ind;
   
   /*
   if (cpuid() != 0){
@@ -772,9 +783,7 @@ scheduler(void)
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
     int ind;
-    // if (c->first != -1)       // Ready list of the cpu not empty.
-    // printf("cpu %d is trying to run a process\n", cpuid());
-    while (c->first != -1)
+    if (c->first != -1)       // Ready list of the cpu not empty.
     {
       ind = removeFirst(&c->first);
       p = &(proc[ind]);
@@ -786,16 +795,21 @@ scheduler(void)
       c->proc = 0;
       release(&p->lock);
     }
-    /*
     else{                         // Steal a process from another cpu.
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
-      addLink(&c->first, stealed_ind);
+      // addLink(&c->first, stealed_ind);
       increase_cpu_counter(c);
-      // decreace_cpu_counter(cpu_index);
-      // increase_cpu_counter(cpuid());
+      // Run the process.
+      acquire(&p->lock);
+      p->state = RUNNING;
+      c->proc = p;
+      swtch(&c->context, &p->context);
+
+      c->proc = 0;
+      release(&p->lock);
     }
-    */
+    
   }
 }
 
