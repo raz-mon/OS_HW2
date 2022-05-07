@@ -769,7 +769,6 @@ scheduler(void)
   // printf("entered scheduler\n");
   struct proc *p;
   struct cpu *c = mycpu();
-  int stealed_ind;
   c->proc = 0;
   
   /*
@@ -803,6 +802,7 @@ scheduler(void)
 
  // IF BLNCFLG=ON:
 #ifdef ON
+  int stealed_ind;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
