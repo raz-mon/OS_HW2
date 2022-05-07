@@ -31,6 +31,11 @@ main()
     userinit();      // first user process
     __sync_synchronize();
     started = 1;
+
+    #ifdef CPUS
+    printf("lalalallalaal, %d", CPUS);
+    #endif
+
   } else {
     while(started == 0)
       ;

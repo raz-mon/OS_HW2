@@ -100,7 +100,7 @@ struct proc {
   
   // Added:
   struct spinlock list_lock;   // Lock for the list-operations.
-  int cpu_num;                 // Number (id) of cpu this process is affiliated with.
+  int cpu_num;                 // Index of cpu this process is affiliated with (in 'cpus' array).
   int ind;                     // Index of the process in the proc_table (maybe can be in the lower list..).
   int next;                    // Index of the next process in the proc_table.
 
