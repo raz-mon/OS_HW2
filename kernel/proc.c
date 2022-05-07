@@ -923,13 +923,13 @@ wakeup(void *chan)
         // remove p from sleeping
         remove(&sleeping, p->ind);
 
-        printf("Woke up process %d\n", p->ind);
+        // printf("Woke up process %d\n", p->ind);
 
         // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
         winner = find_least_used_cpu();
         // Add the process to the cpu with the lowest process_count, and increase its process_count.
 
-        printf("Adding process %d to cpu %d\n", p->ind, winner->cpu_num);
+        // printf("Adding process %d to cpu %d\n", p->ind, winner->cpu_num);
 
         addLink(&winner->first, p->ind);
         increase_cpu_counter(winner);
