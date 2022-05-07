@@ -69,7 +69,7 @@ void increase_cpu_counter(struct cpu *c){
   int old;
   do{
     old = c->process_count;
-  } while (cas(c->process_count, old, old+1));
+  } while (cas(&c->process_count, old, old+1));
 }
 
 void decreace_cpu_counter(int cpu_index){
