@@ -986,7 +986,7 @@ get_cpu(void)
 int
 cpu_process_count(int cpu_num){
   for (struct cpu *ct = cpus; ct < &cpus[NCPU]; ct++){
-    if (ct->cpu_id == cpu_num)
+    if (ct->cpu_num == cpu_num)
       return ct->process_count;
   }
   return -1;
