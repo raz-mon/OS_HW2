@@ -10,7 +10,7 @@ int main(int argc, char *argv[]){
     
     printf("\nChecking multiple forks (unique pid's)\n");
     // Check the cas functionality (no two processes with the same pid).
-    int n = 3;
+    int n = 2;
     // Print all pid's, make sure none of them repeat.
     for (int i = 0; i < n; i++){
         if (fork() == 0){
