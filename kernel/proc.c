@@ -756,8 +756,8 @@ scheduler(void)
   struct cpu *c = mycpu();
   // int stealed_ind;
   if (cpuid() != 0){
-    c->first = -1;              // Initialize 'first' field of other cpus (0 was initialized in procinit).
-    c->process_count = 0;       // Initialize 'process_count' of other cpus (0 was initialized in procinit).
+    // c->first = -1;              // Initialize 'first' field of other cpus (0 was initialized in procinit).
+    // c->process_count = 0;       // Initialize 'process_count' of other cpus (0 was initialized in procinit).
     c->cpu_id = cpuid();        // Initialize cpu_id of other cpus (0 was initialized in procinit).
   }
 
