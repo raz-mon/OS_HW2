@@ -32,6 +32,13 @@ main()
     __sync_synchronize();
     started = 1;
 
+    #ifdef CPUS
+  printf("lalalallalaal, %d", 3);
+  #endif
+
+  #ifndef CPUS
+  printf("lala2\n");
+  #endif
 
   } else {
     while(started == 0)
