@@ -967,12 +967,12 @@ check_LL(void)
   printList(&newList);
   
   int removed = removeFirst(&newList);
-  printf("removed link with proc ind: %d", removed);
+  printf("removed link with proc ind: %d\n", removed);
 
   printList(&newList);
   
   removed = remove(&newList, 57);
-  printf("removed link with proc ind: %d", removed);
+  printf("removed link with proc ind: %d\n", removed);
   
   printList(&newList);
 
