@@ -954,16 +954,17 @@ void
 check_LL(void)
 {
   printf("checking LL implementation...\n");
-  sleeping = 1;
-  addLink(&sleeping, 2);
-  /*
-  addLink(&sleeping, 3);
-  printList(&sleeping);
-  removeFirst(&sleeping);
-  printList(&sleeping);
-  remove(&sleeping, 3);
-  printList(&sleeping);
-  */
+  int newList;
+  newList = 55;
+  addLink(&newList, 56);
+  
+  addLink(&newList, 57);
+  printList(&newList);
+  removeFirst(&newList);
+  printList(&newList);
+  remove(&newList, 57);
+  printList(&newList);
+  
 }
 
 // End of addition.
