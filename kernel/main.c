@@ -32,9 +32,6 @@ main()
     __sync_synchronize();
     started = 1;
 
-    #ifdef CPUS
-    printf("lalalallalaal, %d", CPUS);
-    #endif
 
   } else {
     while(started == 0)
@@ -45,6 +42,10 @@ main()
     trapinithart();   // install kernel trap vector
     plicinithart();   // ask PLIC for device interrupts
   }
+
+  #ifdef CPUS
+  printf("lalalallalaal, %d", CPUS);
+  #endif
 
   scheduler();        
 }
