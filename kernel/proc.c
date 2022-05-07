@@ -346,7 +346,6 @@ allocpid() {
 static struct proc*
 allocproc(void)
 {
-  // printf("Entered allocproc\n");
   struct proc *p;
   // Added
   int ind = removeFirst(&unused);
@@ -358,6 +357,8 @@ allocproc(void)
   }
 
   /*
+  // Old implementation:
+  
   for(p = proc; p < &proc[NPROC]; p++) {
     acquire(&p->lock);
     if(p->state == UNUSED) {
