@@ -4,10 +4,11 @@
 
 int main(int argc, char *argv[]){
     
+    printf("\n\nChecking Linked-List...\n");
     check_LL();
-    return 1;
+    printf("Done with LL\n");
     
-    /*
+    printf("\nChecking multiple forks (unique pid's)\n");
     // Check the cas functionality (no two processes with the same pid).
     int n = 4;
     // Print all pid's, make sure none of them repeat.
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]){
             printf("pid: %d\n", getpid());       
         }
     }
-    */
+    printf("Done\n");
+    
     return 0;
 }
