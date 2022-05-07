@@ -32,8 +32,8 @@ main()
     __sync_synchronize();
     started = 1;
 
-    #ifdef CPUS
-  printf("lala1, %d", 3);
+  #ifdef CPUS
+  printf("lala1, %d!#!@#!@#!@#!@#!@#!@#\n\n", CPUS);
   #endif
 
   #ifndef CPUS
