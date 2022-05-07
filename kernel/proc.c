@@ -94,9 +94,10 @@ find_least_used_cpu(void){
   }
   if (found)
     return winner;
-  else
+  else{
     panic("Couldn't find a least used cpu - bug.");
     return NULL;
+  }
 }
 
 // Steal a process from one of the cpu's running in the system.
