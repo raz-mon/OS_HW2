@@ -66,27 +66,36 @@ void release_lock(int ind){
 }
 
 void increase_cpu_counter(int cpu_index){
-  int counts;
+  int old;
   do{
-    counts = cpus[cpu_index].process_counter;
-  } while (cas(&cpus[cpu_index].process_counter, counts, counts+1));
+    old = cpus[cpu_index].process_count;
+  } while (cas(&cpus[cpu_index].process_count, old, old+1));
 }
 
 void decreace_cpu_counter(int cpu_index){
-  int counts;
+  int old;
   do{
-    counts = cpus[cpu_index].process_counter;
-    if(counts < 1){ break;}   // Can't be under 0.
-  } while (cas(&cpus[cpu_index].process_counter, counts, counts - 1));
+    old = cpus[cpu_index].process_count;
+    if(old < 1){ break;}   // Can't be under 0.
+  } while (cas(&cpus[cpu_index].process_count, old, old - 1));
 }
 
+// Steal a process from one of the cpu's running in the system.
+int steal_process(){
+  // Traverse the cpus array (array of cpus), until finding one with a non-empty ready-list.
+  // Then, steal that process by removing it from it's ready-list, and changing it's cpu_num to -1 (will be changed to the right cpu
+  // in the calling function). OR NOT. Can change this to perform all relevant procedures (sounds good!).
+}
+
+/*    Old implementation - new function does different things.
 // This function return the CPU INDEX which we can be stealing from
 int steal_procces(){
   for(int i = 0; i < NCPU; i++){
-    if(cpus[i].process_counter > 0){return i;}
+    if(cpus[i].process_count > 0){return i;}
   }
   return -1;
 }
+*/
 
 // Add a link to a "linked-list" to the END of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
@@ -358,7 +367,7 @@ allocproc(void)
 
   /*
   // Old implementation:
-  
+
   for(p = proc; p < &proc[NPROC]; p++) {
     acquire(&p->lock);
     if(p->state == UNUSED) {
@@ -503,7 +512,7 @@ userinit(void)
   p->state = RUNNABLE;
   //Added
   p->cpu_num = cpuid();
-  cpus[p->cpu_num].process_counter = 1;
+  cpus[p->cpu_num].process_count = 1;     // Initialize process_count of the first cpu with 1 (init-proc).
   // add p to cpu runnable list
   // Note: The process was already removed from the 'unused' list in 'allocproc'.
   addLink(&cpus[p->cpu_num].first, p->ind);                 // Add this link to this cpu's list.
@@ -714,15 +723,18 @@ scheduler(void)
   // printf("entered scheduler\n");
   struct proc *p;
   struct cpu *c = mycpu();
-  if (cpuid() != 0)
+  int stealed_ind;
+  if (cpuid() != 0){
     c->first = -1;              // Initialize 'first' field of other cpus (0 was initialized in procinit).
-  
+    c->process_count = 0;
+  }
+
   c->proc = 0;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
     int ind;
-    while (c->first != -1)      // Otherwise no process to run in it's list.
+    if (c->first != -1)       // Ready list of the cpu not empty.
     {
       ind = removeFirst(&c->first);
       p = &(proc[ind]);
@@ -734,43 +746,21 @@ scheduler(void)
       c->proc = 0;
       release(&p->lock);
     }
-   
-   
-   
-    // For part 4.
-    /*
-    int cpu_index;
-    if(c->process_counter == 0){
-      cpu_index = steal_procces();
-      addLink(&c->first, removeFirst(&cpus[cpu_index].first));
-      decreace_cpu_counter(cpu_index);
-      increase_cpu_counter(cpuid());
+    else{                         // Steal a process from another cpu.
+      // cpu_id = steal_procces();
+      stealed_ind = steal_process();
+      addLink(&c->first, stealed_ind);
+      // decreace_cpu_counter(cpu_index);
+      // increase_cpu_counter(cpuid());
     }
-    */
-
-
-    
-/*
-    // Original scheduler:
-
-    for(p = proc; p < &proc[NPROC]; p++) {
-      acquire(&p->lock);
-      if(p->state == RUNNABLE) {
-        // Switch to chosen process.  It is the process's job
-        // to release its lock and then reacquire it
-        // before jumping back to us.
-        p->state = RUNNING;
-        c->proc = p;
-        swtch(&c->context, &p->context);
-
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
-      }
-      release(&p->lock);
-    }
-  */
   }
+}
+
+// Steal a process from one of the cpu's ready-list.
+// Return the index in the proc_table of the stolen process.
+int
+steal_procces(void){
+
 }
 
 // Switch to scheduler.  Must hold only p->lock
@@ -879,6 +869,7 @@ void
 wakeup(void *chan)
 {
   struct proc *p;
+  int min_process_count = __UINT_MAX__;
 
   for(p = proc; p < &proc[NPROC]; p++) {
     if(p != myproc()){
@@ -888,7 +879,11 @@ wakeup(void *chan)
         //Added
         // remove p from sleeping
         remove(&sleeping, p->ind);
-        // add p to cpu's runnable list
+        // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
+        for (struct cpu *c = cpus; c < cpus[NCPU]; c++){
+
+        }
+
         addLink(&cpus[p->cpu_num].first, p->ind);
       }
       release(&p->lock);
