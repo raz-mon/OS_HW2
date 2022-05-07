@@ -53,7 +53,7 @@ usertrap(void)
   if(r_scause() == 8){
     // system call
 
-    if(p->killed)
+    if(p->killed)     // p->killed = 1 (is equivalent to true).
       exit(-1);
 
     // sepc points to the ecall instruction,

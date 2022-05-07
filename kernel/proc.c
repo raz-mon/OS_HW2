@@ -349,10 +349,10 @@ allocproc(void)
   // printf("Entered allocproc\n");
   struct proc *p;
   // Added
-  int index = removeFirst(&unused);
-  if(index == -1){return 0;}        // Unused is empty.
+  int ind = removeFirst(&unused);
+  if(ind == -1){return 0;}        // Unused is empty.
   else{
-    p = &proc[index];
+    p = &proc[ind];
     acquire(&p->lock);
     goto found;
   }
@@ -393,7 +393,6 @@ found:
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
 
-  // printf("Exiting allocproc\n");
   return p;
 }
 
@@ -579,8 +578,8 @@ fork(void)
   acquire(&np->lock);
   np->state = RUNNABLE;
   //Added
-  np->cpu_num = p->cpu_num;
-  addLink(&cpus[np->cpu_num].first, np->ind);
+  np->cpu_num = p->cpu_num;                     // Same cpu-num as the father process.
+  addLink(&cpus[np->cpu_num].first, np->ind);   // Adding process link to the father linked-list (after changing to RUNNABLE).
   release(&np->lock);
 
   return pid;
@@ -634,15 +633,17 @@ exit(int status)
   // Parent might be sleeping in wait().
   wakeup(p->parent);
   
-  // Added
-  // add p to the zombie list
-  addLink(&zombie, p->ind);
 
   acquire(&p->lock);
 
   p->xstate = status;
   p->state = ZOMBIE;
 
+  // Added
+  // add p to the zombie list
+  addLink(&zombie, p->ind);
+  // End of addition.
+  
   release(&wait_lock);
 
   // Jump into the scheduler, never to return.
@@ -719,24 +720,17 @@ scheduler(void)
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
-    int index;
+    int ind;
     while (c->first != -1)      // Otherwise no process to run in it's list.
     {
-      // printf("schedulr entered while\n");
-      index = removeFirst(&(c->first));
-      // printf("schedulr remove index: %d\n", index);
-      p = &(proc[index]);
-      acquire(&(p->lock));
-      if(p->state != RUNNABLE){release(&p->lock); break;}
+      ind = removeFirst(&c->first);
+      p = &(proc[ind]);
+      acquire(&p->lock);
       p->state = RUNNING;
       c->proc = p;
-      // release_lock(index);   // What is this for?
-      // printf("schedulr reached here 4\n");
       swtch(&c->context, &p->context);
       // Process is done running for now.
-      // It should have changed its p->state before coming back.
       c->proc = 0;
-      //Should the release lock be here?
       release(&p->lock);
     }
    
@@ -756,6 +750,8 @@ scheduler(void)
 
     
 /*
+    // Original scheduler:
+
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
       if(p->state == RUNNABLE) {
@@ -852,9 +848,6 @@ sleep(void *chan, struct spinlock *lk)
   // (wakeup locks p->lock),
   // so it's okay to release lk.
 
-  // Added
-  // add p to the sleeping list
-  addLink(&sleeping, p->ind);
 
   acquire(&p->lock);  //DOC: sleeplock1
   release(lk);
@@ -863,8 +856,14 @@ sleep(void *chan, struct spinlock *lk)
   p->chan = chan;
   p->state = SLEEPING;
 
+  // Added
+  // add p to the sleeping list
+  addLink(&sleeping, p->ind);
+  // End of addition.
+
   sched();
 
+  // Finished sleeping. Return to this line.
   // Tidy up.
   p->chan = 0;
 
@@ -913,7 +912,7 @@ kill(int pid)
         p->state = RUNNABLE;
         // Added
         remove(&sleeping, p->ind);
-        addLink(&cpus[p->ind].first, p->ind);
+        addLink(&cpus[p->cpu_num].first, p->ind);
       }
       release(&p->lock);
       return 0;
@@ -932,6 +931,7 @@ set_cpu(int cpu_num)
 {
   struct proc *p = myproc();
   p->cpu_num = cpu_num;
+  yield();                  // Yield the cpu, so the process is added to the ready-list of the appropriate cpu.
   return cpu_num;
 }
 
