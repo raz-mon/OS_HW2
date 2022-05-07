@@ -634,6 +634,7 @@ fork(void)
   #ifdef OFF
   np->cpu_num = p->cpu_num;                     // Same cpu-num as the father process.
   addLink(&cpus[np->cpu_num].first, np->ind);   // Adding process link to the father linked-list (after changing to RUNNABLE).
+  increase_cpu_counter(&cpus[np->cpu_num]);
   #endif
 
   #ifdef ON
@@ -815,7 +816,7 @@ scheduler(void)
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
     int ind;
-    if (c->first != -1)       // Ready list of the cpu not empty.
+    while (c->first != -1)       // Ready list of the cpu not empty.
     {
       ind = removeFirst(&c->first);
       p = &(proc[ind]);
@@ -827,7 +828,7 @@ scheduler(void)
       c->proc = 0;
       release(&p->lock);
     }
-    else{                         // Steal a process from another cpu.
+    /*else{                         // Steal a process from another cpu.
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
       p = &proc[stealed_ind];
@@ -842,7 +843,7 @@ scheduler(void)
 
       c->proc = 0;
       release(&p->lock);
-    }
+    }*/
   }
 #endif
 }
@@ -889,8 +890,8 @@ yield(void)
   acquire(&p->lock);
   //Added
   // add p to the cpu runnable list
-  addLink(&cpus[p->cpu_num].first, p->ind);
   p->state = RUNNABLE;
+  addLink(&cpus[p->cpu_num].first, p->ind);
   sched();
   release(&p->lock);
 }
