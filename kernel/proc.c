@@ -296,12 +296,12 @@ proc_mapstacks(pagetable_t kpgtbl) {
 void
 procinit(void)
 {
-  int i = 0;
+  int j = 0;
   for (struct cpu *cp = cpus; cp < &cpus[NCPU]; cp++){
     cp->first = -1;
     cp->process_count = 0;
-    cp->cpu_id = i;
-    i++;
+    cp->cpu_id = j;
+    j++;
   }
   // mycpu()->first = -1;                      // Initialize the 'first' field of the first cpu (applied to cpu 0 only!).
   // mycpu()->cpu_id = cpuid();
