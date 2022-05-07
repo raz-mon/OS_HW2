@@ -44,7 +44,7 @@ main()
   }
 
   #ifdef CPUS
-  printf("lalalallalaal, %d", CPUS);
+  printf("lalalallalaal, %d", 3);
   #endif
 
   #ifndef CPUS
