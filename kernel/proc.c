@@ -759,8 +759,8 @@ scheduler(void)
   c->proc = 0;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
-    printf("cpu %d is trying to run a process\n", cpuid());
     intr_on();
+    printf("cpu %d is trying to run a process\n", cpuid());
     int ind;
     // if (c->first != -1)       // Ready list of the cpu not empty.
     while (c->first != -1)
