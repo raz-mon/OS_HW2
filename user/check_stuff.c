@@ -17,7 +17,6 @@ int main(int argc, char *argv[]){
             printf("pid: %d\n", getpid());       
         }
     }
-    printf("Done\n");
     
     return 1;
 }
