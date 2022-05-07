@@ -303,8 +303,8 @@ procinit(void)
     cp->cpu_id = i;
     i++;
   }
-  mycpu()->first = -1;                      // Initialize the 'first' field of the first cpu (applied to cpu 0 only!).
-  mycpu()->cpu_id = cpuid();
+  // mycpu()->first = -1;                      // Initialize the 'first' field of the first cpu (applied to cpu 0 only!).
+  // mycpu()->cpu_id = cpuid();
 
   struct proc *p;
   // Added
