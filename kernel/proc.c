@@ -394,7 +394,7 @@ allocproc(void)
     acquire(&p->lock);
     goto found;
   }
-
+ 
   /*
   // Old implementation:
 
