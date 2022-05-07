@@ -47,5 +47,9 @@ main()
   printf("lalalallalaal, %d", CPUS);
   #endif
 
+  #ifndef CPUS
+  printf("lala2\n");
+  #endif
+
   scheduler();        
 }
