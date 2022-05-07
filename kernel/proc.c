@@ -761,7 +761,8 @@ scheduler(void)
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
     int ind;
-    if (c->first != -1)       // Ready list of the cpu not empty.
+    // if (c->first != -1)       // Ready list of the cpu not empty.
+    while (c->first != -1)
     {
       ind = removeFirst(&c->first);
       p = &(proc[ind]);
@@ -773,6 +774,7 @@ scheduler(void)
       c->proc = 0;
       release(&p->lock);
     }
+    /*
     else{                         // Steal a process from another cpu.
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
@@ -781,6 +783,7 @@ scheduler(void)
       // decreace_cpu_counter(cpu_index);
       // increase_cpu_counter(cpuid());
     }
+    */
   }
 }
 
