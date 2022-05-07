@@ -811,7 +811,7 @@ scheduler(void)
 
  // IF BLNCFLG=ON:
 #ifdef ON
-  int stealed_ind;
+  // int stealed_ind;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
