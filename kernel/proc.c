@@ -630,11 +630,19 @@ fork(void)
   acquire(&np->lock);
   np->state = RUNNABLE;
   //Added
+
+  #ifdef OFF
+  np->cpu_num = p->cpu_num;                     // Same cpu-num as the father process.
+  addLink(&cpus[np->cpu_num].first, np->ind);   // Adding process link to the father linked-list (after changing to RUNNABLE).
+  #endif
+
+  #ifdef ON
   // Find cpu with least process_count, add the new process to it's ready-list and incement it's counter.
   struct cpu *least_used_cpu = find_least_used_cpu();
   np->cpu_num = least_used_cpu->cpu_num;
   addLink(&least_used_cpu->first, np->ind);
   increase_cpu_counter(least_used_cpu);
+  #endif
   
   release(&np->lock);
 
@@ -823,6 +831,7 @@ scheduler(void)
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
       p = &proc[stealed_ind];
+      p->cpu_num = c->cpu_num;
       // addLink(&c->first, stealed_ind);
       increase_cpu_counter(c);
       // Run the process.
@@ -962,16 +971,19 @@ wakeup(void *chan)
         // remove p from sleeping
         remove(&sleeping, p->ind);
 
-        // printf("Woke up process %d\n", p->ind);
+        #ifdef OFF
+        addLink(&cpus[p->cpu_num].first, p->ind);
+        increase_cpu_counter(&cpus[p->cpu_num]);
+        #endif
 
+        #ifdef ON
         // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
         winner = find_least_used_cpu();
         // Add the process to the cpu with the lowest process_count, and increase its process_count.
-
-        // printf("Adding process %d to cpu %d\n", p->ind, winner->cpu_num);
-
         addLink(&winner->first, p->ind);
         increase_cpu_counter(winner);
+        #endif
+
       }
       release(&p->lock);
     }
