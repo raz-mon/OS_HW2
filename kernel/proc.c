@@ -770,6 +770,7 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   int stealed_ind;
+  c->proc = 0;
   
   /*
   if (cpuid() != 0){
@@ -779,7 +780,29 @@ scheduler(void)
   }
   */
 
-  c->proc = 0;
+ // IF BLNCFLG=OFF:
+#ifdef OFF
+  for(;;){
+    // Avoid deadlock by ensuring that devices can interrupt.
+    intr_on();
+    int ind;
+    while (c->first != -1)       // Ready list of the cpu not empty.
+    {
+      ind = removeFirst(&c->first);
+      p = &(proc[ind]);
+      acquire(&p->lock);
+      p->state = RUNNING;
+      c->proc = p;
+      swtch(&c->context, &p->context);
+      // Process is done running for now.
+      c->proc = 0;
+      release(&p->lock);
+    }
+  }
+#endif
+
+ // IF BLNCFLG=ON:
+#ifdef ON
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
@@ -811,8 +834,8 @@ scheduler(void)
       c->proc = 0;
       release(&p->lock);
     }
-    
   }
+#endif
 }
 
 // Steal a process from one of the cpu's ready-list.
