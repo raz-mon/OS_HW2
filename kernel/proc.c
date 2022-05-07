@@ -767,7 +767,7 @@ scheduler(void)
     intr_on();
     int ind;
     // if (c->first != -1)       // Ready list of the cpu not empty.
-    printf("cpu %d is trying to run a process\n", cpuid());
+    // printf("cpu %d is trying to run a process\n", cpuid());
     while (c->first != -1)
     {
       ind = removeFirst(&c->first);
