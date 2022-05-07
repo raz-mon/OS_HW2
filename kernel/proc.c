@@ -799,6 +799,7 @@ scheduler(void)
     else{                         // Steal a process from another cpu.
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
+      p = &proc[stealed_ind];
       // addLink(&c->first, stealed_ind);
       increase_cpu_counter(c);
       // Run the process.
