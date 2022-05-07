@@ -50,7 +50,7 @@ TOOLPREFIX := $(shell if riscv64-unknown-elf-objdump -i 2>&1 | grep 'elf64-big' 
 endif
 
 ifndef BLNCFLG
-BLNCFLG := 0FF
+BLNCFLG := OFF
 endif
 
 QEMU = qemu-system-riscv64
