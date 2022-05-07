@@ -955,14 +955,25 @@ check_LL(void)
 {
   printf("checking LL implementation...\n");
   int newList;
+  remove(&unused, 55);
   newList = 55;
+
+  remove(&unused, 56);
   addLink(&newList, 56);
   
+  remove(&unused, 57);
   addLink(&newList, 57);
+
   printList(&newList);
-  removeFirst(&newList);
+  
+  int removed = removeFirst(&newList);
+  printf("removed link with proc ind: %d", removed);
+
   printList(&newList);
-  remove(&newList, 57);
+  
+  removed = remove(&newList, 57);
+  printf("removed link with proc ind: %d", removed);
+  
   printList(&newList);
   
 }
