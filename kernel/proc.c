@@ -112,7 +112,7 @@ int steal_process(void){
       if (cp->first != -1){
         get_lock(cp->first);
         out = removeFirst(&cp->first);
-        release_lock(&cp->first);
+        release_lock(cp->first);
         return out; 
       }
     }
