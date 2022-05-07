@@ -6,7 +6,7 @@ int main(int argc, char *argv[]){
     
     printf("Printing process_count of each cpu:\n");
     for (int i = 0; i < 3; i++){
-        cpu_process_count(i);
+        printf("cpu %d: %d\n", i, cpu_process_count(i));
     }
 
     /*
