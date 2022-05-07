@@ -120,6 +120,14 @@ sys_get_cpu(void)
   return get_cpu();
 }
 
+uint64
+sys_cpu_process_count(void){
+  int cpu_num;
+  if (argint(0, &cpu_num) < 0)
+    return -1;
+  return cpu_process_count(cpu_num);
+}
+
 // Perform check_LL syscall, which performs check_LL function (in proc.c).
 uint64
 sys_check_LL(void)
