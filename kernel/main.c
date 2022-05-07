@@ -33,7 +33,7 @@ main()
     started = 1;
 
   #ifdef CPUS
-  printf("lala1, %d!#!@#!@#!@#!@#!@#!@#\n\n", CPUS);
+  printf("lala1, %d!#!@#!@#!@#!@#!@#!@#\n\n", $(CPUS));
   #endif
 
   #ifndef CPUS
