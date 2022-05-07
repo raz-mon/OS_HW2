@@ -960,7 +960,6 @@ void
 wakeup(void *chan)
 {
   struct proc *p;
-  struct cpu *winner;
 
   for(p = proc; p < &proc[NPROC]; p++) {
     if(p != myproc()){
@@ -977,13 +976,13 @@ wakeup(void *chan)
         #endif
 
         #ifdef ON
+        struct cpu *winner;
         // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
         winner = find_least_used_cpu();
         // Add the process to the cpu with the lowest process_count, and increase its process_count.
         addLink(&winner->first, p->ind);
         increase_cpu_counter(winner);
         #endif
-
       }
       release(&p->lock);
     }
