@@ -82,7 +82,7 @@ void decreace_cpu_counter(int cpu_index){
 
 struct cpu*
 find_least_used_cpu(void){
-  struct cpu *winner = cpus[0];                        // Just initialization. Will be ran over (for sure).
+  struct cpu *winner = &cpus[0];                        // Just initialization. Will be ran over (for sure).
   int found = 0;
   uint64 min_process_count = 1844674407370955564;      // Initialized to maximum of uint64;
   for (struct cpu *c1 = cpus; c1 < &cpus[NCPU]; c1++){
