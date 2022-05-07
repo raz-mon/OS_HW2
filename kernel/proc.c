@@ -20,6 +20,7 @@ struct spinlock pid_lock;
 
 extern void forkret(void);
 static void freeproc(struct proc *p);
+int removeFirst(int *list);
 
 extern char trampoline[]; // trampoline.S
 
