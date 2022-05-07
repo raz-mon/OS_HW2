@@ -301,7 +301,7 @@ procinit(void)
   for (struct cpu *cp = cpus; cp < &cpus[NCPU]; cp++){
     cp->first = -1;
     cp->process_count = 0;
-    cp->cpu_id = j;
+    cp->cpu_num = j;
     j++;
   }
   // mycpu()->first = -1;                      // Initialize the 'first' field of the first cpu (applied to cpu 0 only!).
@@ -620,7 +620,7 @@ fork(void)
   //Added
   // Find cpu with least process_count, add the new process to it's ready-list and incement it's counter.
   struct cpu *least_used_cpu = find_least_used_cpu();
-  np->cpu_num = least_used_cpu->cpu_id;
+  np->cpu_num = least_used_cpu->cpu_num;
   addLink(&least_used_cpu->first, np->ind);
   increase_cpu_counter(least_used_cpu);
   
