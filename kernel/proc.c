@@ -296,10 +296,12 @@ proc_mapstacks(pagetable_t kpgtbl) {
 void
 procinit(void)
 {
+  int i = 0;
   for (struct cpu *cp = cpus; cp < &cpus[NCPU]; cp++){
     cp->first = -1;
     cp->process_count = 0;
-    
+    cp->cpu_id = i;
+    i++;
   }
   mycpu()->first = -1;                      // Initialize the 'first' field of the first cpu (applied to cpu 0 only!).
   mycpu()->cpu_id = cpuid();
@@ -755,11 +757,14 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   // int stealed_ind;
+  
+  /*
   if (cpuid() != 0){
     // c->first = -1;              // Initialize 'first' field of other cpus (0 was initialized in procinit).
     // c->process_count = 0;       // Initialize 'process_count' of other cpus (0 was initialized in procinit).
-    c->cpu_id = cpuid();        // Initialize cpu_id of other cpus (0 was initialized in procinit).
+    // c->cpu_id = cpuid();        // Initialize cpu_id of other cpus (0 was initialized in procinit).
   }
+  */
 
   c->proc = 0;
   for(;;){
