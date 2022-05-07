@@ -33,7 +33,7 @@ main()
     started = 1;
 
     #ifdef CPUS
-  printf("lalalallalaal, %d", 3);
+  printf("lala1, %d", 3);
   #endif
 
   #ifndef CPUS
@@ -49,14 +49,6 @@ main()
     trapinithart();   // install kernel trap vector
     plicinithart();   // ask PLIC for device interrupts
   }
-
-  #ifdef CPUS
-  printf("lalalallalaal, %d", 3);
-  #endif
-
-  #ifndef CPUS
-  printf("lala2\n");
-  #endif
 
   scheduler();        
 }
