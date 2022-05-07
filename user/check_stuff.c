@@ -4,6 +4,12 @@
 
 int main(int argc, char *argv[]){
     
+    printf("Printing process_count of each cpu:\n");
+    for (int i = 0; i < 3; i++){
+        cpu_process_count(i);
+    }
+
+    /*
     printf("\n\nChecking Linked-List...\n");
     check_LL();
     printf("Done with LL\n");
@@ -17,6 +23,7 @@ int main(int argc, char *argv[]){
             printf("pid: %d\n", getpid());       
         }
     }
-    
+    */
+
     exit(0);
 }
