@@ -975,6 +975,8 @@ check_LL(void)
   printf("removed link with proc ind: %d", removed);
   
   printList(&newList);
+
+  return;
   
 }
 
