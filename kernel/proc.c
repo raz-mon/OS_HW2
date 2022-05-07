@@ -296,6 +296,11 @@ proc_mapstacks(pagetable_t kpgtbl) {
 void
 procinit(void)
 {
+  for (struct cpu *cp = cpus; cp < &cpus[NCPU]; cp++){
+    cp->first = -1;
+    cp->process_count = 0;
+    
+  }
   mycpu()->first = -1;                      // Initialize the 'first' field of the first cpu (applied to cpu 0 only!).
   mycpu()->cpu_id = cpuid();
 
@@ -760,9 +765,9 @@ scheduler(void)
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
-    printf("cpu %d is trying to run a process\n", cpuid());
     int ind;
     // if (c->first != -1)       // Ready list of the cpu not empty.
+    printf("cpu %d is trying to run a process\n", cpuid());
     while (c->first != -1)
     {
       ind = removeFirst(&c->first);
