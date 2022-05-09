@@ -499,7 +499,7 @@ freeproc(struct proc *p)
   // Remove from ZOMBIE list
   remove(&zombie, p->ind);
   // Add to UNUSED list
-  addLink(&unused, p->ind);
+  addLink(&unused, p->ind, &unused_head_lock);
   p->state = UNUSED;
 }
 
@@ -585,7 +585,7 @@ userinit(void)
   cpus[p->cpu_num].process_count = 1;     // Initialize process_count of the first cpu with 1 (init-proc).
   // add p to cpu runnable list
   // Note: The process was already removed from the 'unused' list in 'allocproc'.
-  addLink(&cpus[p->cpu_num].first, p->ind);                 // Add this link to this cpu's list.
+  addLink(&cpus[p->cpu_num].first, p->ind, &cpus[p->cpu_num].first_head_lock);                 // Add this link to this cpu's list.
   release(&p->lock);
 
   // printf("Finished userinit.\n");
@@ -734,7 +734,7 @@ exit(int status)
 
   // Added
   // add p to the zombie list
-  addLink(&zombie, p->ind);
+  addLink(&zombie, p->ind, &zombie_head_lock);
   // End of addition.
 
   release(&wait_lock);
@@ -919,7 +919,7 @@ yield(void)
   //Added
   // add p to the cpu runnable list
   p->state = RUNNABLE;
-  addLink(&cpus[p->cpu_num].first, p->ind);
+  addLink(&cpus[p->cpu_num].first, p->ind, &cpus[p->cpu_num].first_head_lock);
   sched();
   release(&p->lock);
 }
@@ -969,7 +969,7 @@ sleep(void *chan, struct spinlock *lk)
 
   // Added
   // add p to the sleeping list
-  addLink(&sleeping, p->ind);
+  addLink(&sleeping, p->ind, &sleeping_head_lock);
   // End of addition.
 
   sched();
@@ -1035,7 +1035,7 @@ kill(int pid)
         p->state = RUNNABLE;
         // Added
         remove(&sleeping, p->ind);
-        addLink(&cpus[p->cpu_num].first, p->ind);
+        addLink(&cpus[p->cpu_num].first, p->ind, &cpus[p->cpu_num].first_head_lock);
       }
       release(&p->lock);
       return 0;
@@ -1082,15 +1082,16 @@ void
 check_LL(void)
 {
   printf("checking LL implementation...\n");
+  int newList_head_lock = 0;
   int newList;
   remove(&unused, 55);
   newList = 55;
 
   remove(&unused, 56);
-  addLink(&newList, 56);
+  addLink(&newList, 56, &newList_head_lock);
   
   remove(&unused, 57);
-  addLink(&newList, 57);
+  addLink(&newList, 57, &newList_head_lock);
 
   printList(&newList);
   
