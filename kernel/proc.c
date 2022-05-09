@@ -661,7 +661,7 @@ fork(void)
 
   #ifdef OFF
   np->cpu_num = p->cpu_num;                     // Same cpu-num as the father process.
-  addLink(&cpus[np->cpu_num].first, np->ind);   // Adding process link to the father linked-list (after changing to RUNNABLE).
+  addLink(&cpus[np->cpu_num].first, np->ind, &cpus[np->cpu_num].first_head_lock);   // Adding process link to the father linked-list (after changing to RUNNABLE).
   increase_cpu_counter(&cpus[np->cpu_num]);
   #endif
 
@@ -669,7 +669,7 @@ fork(void)
   // Find cpu with least process_count, add the new process to it's ready-list and incement it's counter.
   struct cpu *least_used_cpu = find_least_used_cpu();
   np->cpu_num = least_used_cpu->cpu_num;
-  addLink(&least_used_cpu->first, np->ind);
+  addLink(&least_used_cpu->first, np->ind, &cpus[np->cpu_num].first_head_lock);
   increase_cpu_counter(least_used_cpu);
   #endif
   
@@ -1000,7 +1000,7 @@ wakeup(void *chan)
         remove(&sleeping, p->ind);
 
         #ifdef OFF
-        addLink(&cpus[p->cpu_num].first, p->ind);
+        addLink(&cpus[p->cpu_num].first, p->ind, &cpus[p->cpu_num].first_head_lock);
         increase_cpu_counter(&cpus[p->cpu_num]);
         #endif
 
@@ -1009,7 +1009,7 @@ wakeup(void *chan)
         // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
         winner = find_least_used_cpu();
         // Add the process to the cpu with the lowest process_count, and increase its process_count.
-        addLink(&winner->first, p->ind);
+        addLink(&winner->first, p->ind, &cpus[p->cpu_num].first_head_lock);
         increase_cpu_counter(winner);
         #endif
       }
