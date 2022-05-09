@@ -21,4 +21,6 @@ Todo:
 
 - Steal - still making problems (aqcuire).
 
+- Add balancing optimization to kill also (as wakeup, add it to the proper list in each of the states of BLNCFLG).
+
 

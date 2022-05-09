@@ -118,7 +118,7 @@ int steal_process(void){
     for (struct cpu *cp = cpus; cp < &cpus[5]; cp++){
       if (cp->first != -1){
         get_lock(cp->first);
-        out = removeFirst(&cp->first);
+        out = removeFirst(&cp->first, &cp->first_head_lock);
         release_lock(cp->first);
         return out; 
       }
@@ -194,12 +194,19 @@ void addLink(int *first_ind, int to_add, int *head_lock){
 
 // Remove the first "link" of the linked-list.
 // Return the value of the first "link".
-int removeFirst(int *first_p){
+int removeFirst(int *first_p, int *head_lock){
+  // Get the dummy head lock (critical sections - dealing with the head of the list, until first link is held).
+  // Wait for it to be 0 (meaining it is free). Should be a short wait.
+  while(cas(head_lock, 0, 1))
+    ;;
+
+
   // The first part is not fully synchronized - Think about a way to overcome this.
   // printf("\n\nEntered removeFirst\n\n");
   // Empty list case.
   if (*first_p == -1){
-    // printf("Oh naaa... Sorry empty list!");
+    printf("Tried to extract a link from an empty list.\n");
+    cas(head_lock, 1, 0);   // Release the head_lock.
     return -1;
   }
 
@@ -207,6 +214,9 @@ int removeFirst(int *first_p){
   int temp_ind = *first_p;
   // printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);           // Take first node's lock.
+  // Release dummy head lock. First lock is already obtained (lock held).
+  cas(head_lock, 1, 0);
+
   int next_ind = getNext(*first_p);     // No concurency problem here, since the first node is locked --> No-one can change his successor.
   if (next_ind != -1){            // List has more than one component.
     // printf("Taking %d\n", next_ind);
@@ -229,16 +239,25 @@ int removeFirst(int *first_p){
 
 // Remove link with index (in the proc_table) ind from the list.
 // Return 1 (true) for success, 0 (false) for failure.
-int remove(int *first_p, int ind){
+int remove(int *first_p, int ind, int *head_lock){
+  // Get dummy head lock
+  while(cas(head_lock, 0, 1))
+    ;;
+
+  
   // printf("\nEntered remove. Removing process %d from a list\n");
   // Handle empty list case.
   if(*first_p == -1){
+    printf("Tried to extract a link from an empty list.\n");
+    cas(head_lock, 1, 0);   // Release the head_lock.
     return -1;
   }
 
   // List is not empty.
   // printf("Taking %d\n", *first_p);
   get_lock(*first_p);                       // Get lock of first node.
+  // Release the head-lock. The first link is already held, so no problem letting it go.
+  cas(head_lock, 1, 0);
 
   if (ind == *first_p){                 // The element we wish to extract from the list is the first element.
     if (getNext(*first_p) == -1){       // List of one element, which is the wanted element.
@@ -272,8 +291,6 @@ int remove(int *first_p, int ind){
     get_lock(curr);                     // Lock "current" node (process).
     if (curr == ind){
 
-      // printf("\n\nfound it!!!@#!@#!@#!@#!\n\n");
-
       // Delete node from list.
       proc[prev].next = proc[curr].next;
       proc[curr].next = -1;
@@ -293,7 +310,7 @@ int remove(int *first_p, int ind){
   return 0;                        // Node to remove not found (it's index).
 }
 
-// Print the linked-list, pointed at by first.
+// Print the linked-list, pointed at by first. Used for debugging purposses.
 void printList(int *first){
   // No locking at the moment. So this can show false results.
   int temp = *first;
@@ -427,7 +444,7 @@ allocproc(void)
 {
   struct proc *p;
   // Added
-  int ind = removeFirst(&unused);
+  int ind = removeFirst(&unused, &unused_head_lock);
   if(ind == -1){return 0;}        // Unused is empty.
   else{
     p = &proc[ind];
@@ -497,7 +514,7 @@ freeproc(struct proc *p)
   p->xstate = 0;
   // Added
   // Remove from ZOMBIE list
-  remove(&zombie, p->ind);
+  remove(&zombie, p->ind, &zombie_head_lock);
   // Add to UNUSED list
   addLink(&unused, p->ind, &unused_head_lock);
   p->state = UNUSED;
@@ -997,7 +1014,7 @@ wakeup(void *chan)
         p->state = RUNNABLE;
         //Added
         // remove p from sleeping
-        remove(&sleeping, p->ind);
+        remove(&sleeping, p->ind, &sleeping_head_lock);
 
         #ifdef OFF
         addLink(&cpus[p->cpu_num].first, p->ind, &cpus[p->cpu_num].first_head_lock);
@@ -1033,8 +1050,8 @@ kill(int pid)
       if(p->state == SLEEPING){
         // Wake process from sleep().
         p->state = RUNNABLE;
-        // Added
-        remove(&sleeping, p->ind);
+        // Added (Should we also use ifdef here to perform optimization? I think so.)
+        remove(&sleeping, p->ind, &sleeping_head_lock);
         addLink(&cpus[p->cpu_num].first, p->ind, &cpus[p->cpu_num].first_head_lock);
       }
       release(&p->lock);
@@ -1084,23 +1101,23 @@ check_LL(void)
   printf("checking LL implementation...\n");
   int newList_head_lock = 0;
   int newList;
-  remove(&unused, 55);
+  remove(&unused, 55, &unused_head_lock);
   newList = 55;
 
-  remove(&unused, 56);
+  remove(&unused, 56, &unused_head_lock);
   addLink(&newList, 56, &newList_head_lock);
   
-  remove(&unused, 57);
+  remove(&unused, 57, &unused_head_lock);
   addLink(&newList, 57, &newList_head_lock);
 
   printList(&newList);
   
-  int removed = removeFirst(&newList);
+  int removed = removeFirst(&newList, &newList_head_lock);
   printf("removed link with proc ind: %d\n", removed);
 
   printList(&newList);
   
-  removed = remove(&newList, 57);
+  removed = remove(&newList, 57, &newList_head_lock);
   printf("removed link with proc ind: %d\n", 57);
   
   printList(&newList);
