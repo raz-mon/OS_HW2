@@ -9,8 +9,8 @@
 
 
 Todo:
-- Add a variable to take the number of cpu's running in current execution.
-    Use this value for the for-loops I conduct over the relevant cpus structure (array).
+- Understand how to get the current number of running cpus (if we need to), and assign that value to the global variable num_cpus in proc.c.
+    Currently initialized to 3.
 
 - Add a 'dummy-process' for each list - So we can lock it when we check if the list is empty and shit.
     According to the presentation they sent (for the insert and remove operations), it seems that this lock is taken
