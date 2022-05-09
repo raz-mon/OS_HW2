@@ -893,19 +893,21 @@ scheduler(void)
     else{                         // Steal a process from another cpu.
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
-      p = &proc[stealed_ind];
-      p->cpu_num = c->cpu_num;
-      // addLink(&c->first, stealed_ind);
-      increase_cpu_counter(c);
-      // Run the process.
-      acquire(&p->lock);
-      p->state = RUNNING;
-      c->proc = p;
-      swtch(&c->context, &p->context);
+      if (stealed_ind != -1){           // Managed to steal a process ;)
+        p = &proc[stealed_ind];
+        p->cpu_num = c->cpu_num;
+        // addLink(&c->first, stealed_ind);
+        increase_cpu_counter(c);
+        // Run the process.
+        acquire(&p->lock);
+        p->state = RUNNING;
+        c->proc = p;
+        swtch(&c->context, &p->context);
 
-      // Finished running this process.
-      c->proc = 0;
-      release(&p->lock);
+        // Finished running this process.
+        c->proc = 0;
+        release(&p->lock);
+      }
     }
   }
 #endif
