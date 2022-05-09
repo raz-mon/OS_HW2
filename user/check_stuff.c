@@ -9,7 +9,7 @@ int main(int argc, char *argv[]){
         printf("cpu %d: %d\n", i, cpu_process_count(i));
     }
 
-    /*
+    
     printf("\n\nChecking Linked-List...\n");
     check_LL();
     printf("Done with LL\n");
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]){
             printf("pid: %d\n", getpid());       
         }
     }
-    */
+    
 
     exit(0);
 }
