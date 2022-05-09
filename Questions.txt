@@ -15,6 +15,9 @@ Todo:
 - Add a 'dummy-process' for each list - So we can lock it when we check if the list is empty and shit.
     According to the presentation they sent (for the insert and remove operations), it seems that this lock is taken
     for insert and remove too (not only for the check).
+    OR MAYBE CAN USE CAS IN-ORDER TO UPDATE THAT FIRST ONE --> WON'T NEED ANY DUMMY! JUST NEED TO DO IT SMARTLY.
+    Sadly, it does not make up for the Critical Section.. At least not the way I implemented it now.
+    BUT, I can also use an integer as such a 'head-dummy', and 'lock & release' it with cas. That sounds good.
 
 - Steal - still making problems (aqcuire).
 

@@ -40,6 +40,10 @@ int sleeping = -1;
 int zombie = -1;
 int unused = -1;
 
+int sleeping_head_lock = 0;
+int zombie_head_lock = 0;
+int unused_head_lock = 0;
+
 // Current number of cpu's
 int num_cpus = 3;
 
@@ -135,13 +139,26 @@ int steal_procces(){
 
 // Add a link to a "linked-list" to the END of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
-void addLink(int *first_ind, int to_add){
-  // printf("Adding ind %d to a list\n", to_add);
+void addLink(int *first_ind, int to_add, int *head_lock){
+  // Get dummy-head of the list pointed at by 'first_ind'.
+  while(cas(head_lock, 0, 1))       // Busy-wait until the head is clear (not supposed to be long).
+    ;;
 
-  // printf("Taking %d\n", to_add);
+  // Taking the lock of the added process.
   get_lock(to_add);
   int temp_ind = *first_ind;
   // Handle case of empty list (index=-1).
+
+  if (!cas(first_ind, -1, to_add)){
+    // Succeeded to replace -1 with 'to_add', which is the new head of the list.
+    release_lock(to_add);
+    // Release dummy-head here.
+    cas(head_lock, 1, 0);
+    return;
+  }
+
+
+/* Old implementation of the above code:
   if(temp_ind == -1){
     *first_ind = to_add;
     // printf("added process in index %d, to a list.\n", to_add);
@@ -149,9 +166,15 @@ void addLink(int *first_ind, int to_add){
     release_lock(to_add);
     return;
   }
+*/
+
+  // If got here -> List is not empty, head is still locked (dummy).
   // Acquire first lock
   // printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);
+  // Release 'dummy-head' here.
+  cas(head_lock, 1, 0);
+
   int next_ind = proc[temp_ind].next;
   while (next_ind != -1){
     // printf("Taking %d\n", next_ind);
@@ -165,6 +188,7 @@ void addLink(int *first_ind, int to_add){
   // printf("Releasing %d\n", temp_ind);
   release_lock(temp_ind);
   // printf("Releasing %d\n", to_add);
+  // Releasing the list-lock of the added process.
   release_lock(to_add);
 }
 
@@ -315,6 +339,7 @@ procinit(void)
   int j = 0;
   for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
     cp->first = -1;
+    cp->first_head_lock = 0;       // Initialized as not locked. Locked = 0 = false. 1 is true --> locked.
     cp->process_count = 0;
     cp->cpu_num = j;
     j++;
@@ -337,7 +362,7 @@ procinit(void)
       p->ind = i;
       p->cpu_num = 0;
       i++;
-      addLink(&unused, p->ind);      // Add link to the unused list, if this is not the init proc which is used.
+      addLink(&unused, p->ind, &unused_head_lock);      // Add link to the unused list, if this is not the init proc which is used.
   }
   // printf("unused list: \n");
   // printList(&unused);

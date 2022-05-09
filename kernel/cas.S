@@ -10,5 +10,5 @@ cas:
     # li a0, 0            # Return value is a0.
     jr ra               # Return 0, i.e., FALSE for sucess.
 fail:
-    li a0, 1            # Set return to failure. --> Returns TRUE for failure (i.e., 1).
+    li a0, 1            # Set return to failure. --> Returns 1 for failure (i.e., TRUE).
     jr ra               # Return.
