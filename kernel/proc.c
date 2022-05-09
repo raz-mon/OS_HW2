@@ -841,7 +841,7 @@ scheduler(void)
     int ind;
     while (c->first != -1)       // Ready list of the cpu not empty.
     {
-      ind = removeFirst(&c->first);
+      ind = removeFirst(&c->first, &c->first_head_lock);
       p = &(proc[ind]);
       acquire(&p->lock);
       p->state = RUNNING;
@@ -863,7 +863,7 @@ scheduler(void)
     int ind;
     while (c->first != -1)       // Ready list of the cpu not empty.
     {
-      ind = removeFirst(&c->first);
+      ind = removeFirst(&c->first, &c->first_head_lock);
       p = &(proc[ind]);
       acquire(&p->lock);
       p->state = RUNNING;
