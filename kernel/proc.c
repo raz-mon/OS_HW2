@@ -45,7 +45,7 @@ int zombie_head_lock = 0;
 int unused_head_lock = 0;
 
 // Current number of cpu's
-int num_cpus = 3;
+int num_cpus = 6;
 
 /*
 // Nice pattern for concurrent programming with cas.
