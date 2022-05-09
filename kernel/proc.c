@@ -861,10 +861,6 @@ scheduler(void)
     // while (c->first != -1)       // Ready list of the cpu not empty.
     if (c->first != -1)
     {
-      // Release head-lock
-      cas(&c->first_head_lock, 1, 0);
-
-      
       ind = removeFirst(&c->first, &c->first_head_lock);
       if (ind != -1){           // No-one stole the only process in the list (if there was one..).
         p = &(proc[ind]);
