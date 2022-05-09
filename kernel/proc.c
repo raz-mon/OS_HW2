@@ -109,13 +109,14 @@ find_least_used_cpu(void){
 }
 
 // Steal a process from one of the cpu's running in the system, and return its index.
-int steal_process(void){
+int 
+steal_process(void){
   // Traverse the cpus array (array of cpus), until finding one with a non-empty ready-list.
   // Then, steal that process by removing it from it's ready-list, and changing it's cpu_num to -1 (will be changed to the right cpu
   // in the calling function). OR NOT. Can change this to perform all relevant procedures (sounds good!).
   int out;
   for (;;){
-    for (struct cpu *cp = cpus; cp < &cpus[5]; cp++){
+    for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
 
         out = removeFirst(&cp->first, &cp->first_head_lock);
         if (out != -1)    // Managed to steal a link from the linked list.
