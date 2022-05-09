@@ -115,27 +115,14 @@ steal_process(void){
   // Then, steal that process by removing it from it's ready-list, and changing it's cpu_num to -1 (will be changed to the right cpu
   // in the calling function). OR NOT. Can change this to perform all relevant procedures (sounds good!).
   int out;
-  for (;;){
-    for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
-
-        out = removeFirst(&cp->first, &cp->first_head_lock);
-        if (out != -1)    // Managed to steal a link from the linked list.
-          return out;
-
-
-/* Old implementation:
-      if (cp->first != -1){
-        get_lock(cp->first);
-        out = removeFirst(&cp->first, &cp->first_head_lock);
-        release_lock(cp->first);
-        return out; 
-      }
-*/
-
-    }
+  for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
+    out = removeFirst(&cp->first, &cp->first_head_lock);
+    if (out != -1)    // Managed to steal a link from the linked list.
+      return out;
   }
-  // return -1;
+  return -1;        // Didn't manage to steal a process.
 }
+
 
 /*    Old implementation - new function does different things.
 // This function return the CPU INDEX which we can be stealing from
