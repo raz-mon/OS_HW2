@@ -45,7 +45,7 @@ int zombie_head_lock = 0;
 int unused_head_lock = 0;
 
 // Current number of cpu's
-int num_cpus = 6;
+int num_cpus = 3;
 
 /*
 // Nice pattern for concurrent programming with cas.
@@ -108,7 +108,7 @@ find_least_used_cpu(void){
   }
 }
 
-// Steal a process from one of the cpu's running in the system.
+// Steal a process from one of the cpu's running in the system, and return its index.
 int steal_process(void){
   // Traverse the cpus array (array of cpus), until finding one with a non-empty ready-list.
   // Then, steal that process by removing it from it's ready-list, and changing it's cpu_num to -1 (will be changed to the right cpu
@@ -116,12 +116,21 @@ int steal_process(void){
   int out;
   for (;;){
     for (struct cpu *cp = cpus; cp < &cpus[5]; cp++){
+
+        out = removeFirst(&cp->first, &cp->first_head_lock);
+        if (out != -1)    // Managed to steal a link from the linked list.
+          return out;
+
+
+/* Old implementation:
       if (cp->first != -1){
         get_lock(cp->first);
         out = removeFirst(&cp->first, &cp->first_head_lock);
         release_lock(cp->first);
         return out; 
       }
+*/
+
     }
   }
   // return -1;
@@ -861,19 +870,26 @@ scheduler(void)
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
     int ind;
-    while (c->first != -1)       // Ready list of the cpu not empty.
+    // while (c->first != -1)       // Ready list of the cpu not empty.
+    if (c->first != -1)
     {
+      // Release head-lock
+      cas(&c->first_head_lock, 1, 0);
+
+      
       ind = removeFirst(&c->first, &c->first_head_lock);
-      p = &(proc[ind]);
-      acquire(&p->lock);
-      p->state = RUNNING;
-      c->proc = p;
-      swtch(&c->context, &p->context);
-      // Process is done running for now.
-      c->proc = 0;
-      release(&p->lock);
+      if (ind != -1){           // No-one stole the only process in the list (if there was one..).
+        p = &(proc[ind]);
+        acquire(&p->lock);
+        p->state = RUNNING;
+        c->proc = p;
+        swtch(&c->context, &p->context);
+        // Process is done running for now.
+        c->proc = 0;
+        release(&p->lock);
+      }
     }
-    /*else{                         // Steal a process from another cpu.
+    else{                         // Steal a process from another cpu.
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
       p = &proc[stealed_ind];
@@ -886,18 +902,12 @@ scheduler(void)
       c->proc = p;
       swtch(&c->context, &p->context);
 
+      // Finished running this process.
       c->proc = 0;
       release(&p->lock);
-    }*/
+    }
   }
 #endif
-}
-
-// Steal a process from one of the cpu's ready-list.
-// Return the index in the proc_table of the stolen process.
-int
-steal_procces(void){
-  return -1;
 }
 
 // Switch to scheduler.  Must hold only p->lock
