@@ -4,5 +4,18 @@
 - Make sure that 'cpuid()' actually returns the index of the current cpu in the cpus array.
 
 - How can I get the number of cpus?
+    Or can I assume that they are as NCPU?
+
+
+
+Todo:
+- Add a variable to take the number of cpu's running in current execution.
+    Use this value for the for-loops I conduct over the relevant cpus structure (array).
+
+- Add a 'dummy-process' for each list - So we can lock it when we check if the list is empty and shit.
+    According to the presentation they sent (for the insert and remove operations), it seems that this lock is taken
+    for insert and remove too (not only for the check).
+
+- Steal - still making problems (aqcuire).
 
 

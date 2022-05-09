@@ -40,6 +40,9 @@ int sleeping = -1;
 int zombie = -1;
 int unused = -1;
 
+// Current number of cpu's
+int num_cpus = 3;
+
 /*
 // Nice pattern for concurrent programming with cas.
 public void add(T obj) {
@@ -86,7 +89,7 @@ find_least_used_cpu(void){
   struct cpu *winner = &cpus[0];                        // Just initialization. Will be ran over (for sure).
   int found = 0;
   uint64 min_process_count = 1844674407370955564;      // Initialized to maximum of uint64;
-  for (struct cpu *c1 = cpus; c1 < &cpus[5]; c1++){
+  for (struct cpu *c1 = cpus; c1 < &cpus[num_cpus]; c1++){
     if (c1->process_count < min_process_count){
       found = 1;      // Set found to true.
       winner = c1;
@@ -310,7 +313,7 @@ procinit(void)
 {
   // Initialize cpus 'special' fields.
   int j = 0;
-  for (struct cpu *cp = cpus; cp < &cpus[5]; cp++){
+  for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
     cp->first = -1;
     cp->process_count = 0;
     cp->cpu_num = j;
