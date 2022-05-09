@@ -215,7 +215,7 @@ int removeFirst(int *first_p, int *head_lock){
   // printf("\n\nEntered removeFirst\n\n");
   // Empty list case.
   if (*first_p == -1){
-    printf("Tried to extract a link from an empty list.\n");
+    // printf("Tried to extract a link from an empty list.\n");
     cas(head_lock, 1, 0);   // Release the head_lock.
     return -1;
   }
@@ -258,7 +258,7 @@ int remove(int *first_p, int ind, int *head_lock){
   // printf("\nEntered remove. Removing process %d from a list\n");
   // Handle empty list case.
   if(*first_p == -1){
-    printf("Tried to extract a link from an empty list.\n");
+    // printf("Tried to extract a link from an empty list.\n");
     cas(head_lock, 1, 0);   // Release the head_lock.
     return -1;
   }
