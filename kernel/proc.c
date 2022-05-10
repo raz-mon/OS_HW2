@@ -140,7 +140,7 @@ void addLink(int *first_ind, int to_add, int *head_lock){
     release_lock(to_add);
     // Release dummy-head here.
     if (cas(head_lock, 1, 0))
-    printf("Wierd problem!\n");
+    printf("Wierd problem1!\n");
     return;
   }
 
@@ -161,7 +161,7 @@ void addLink(int *first_ind, int to_add, int *head_lock){
   get_lock(temp_ind);
   // Release 'dummy-head' here.
   if (cas(head_lock, 1, 0))
-    printf("Wierd problem!\n");
+    printf("Wierd problem2!\n");
 
   int next_ind = proc[temp_ind].next;
   while (next_ind != -1){
@@ -196,7 +196,7 @@ int removeFirst(int *first_p, int *head_lock){
     // printf("Tried to extract a link from an empty list.\n");
     // cas(head_lock, 1, 0);   // Release the head_lock.
     if (cas(head_lock, 1, 0))
-      printf("Wierd problem!\n");
+      printf("Wierd problem3!\n");
     return -1;
   }
 
@@ -206,7 +206,7 @@ int removeFirst(int *first_p, int *head_lock){
   get_lock(temp_ind);           // Take first node's lock.
   // Release dummy head lock. First lock is already obtained (lock held).
   if (cas(head_lock, 1, 0))   // cas should return false here (because it succeeded!!).
-    printf("Wierd problem!\n");
+    printf("Wierd problem4!\n");
 
   int next_ind = getNext(*first_p);     // No concurency problem here, since the first node is locked --> No-one can change his successor.
   if (next_ind != -1){            // List has more than one component.
