@@ -392,8 +392,8 @@ proc_mapstacks(pagetable_t kpgtbl) {
 void
 procinit(void)
 {
-  printf("num_cpus: %d\n", num_cpus);
-  
+  printf("number of cpus running: : %d\n", num_cpus);
+
   // Initialize cpus 'special' fields.
   int j = 0;
   for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
@@ -494,6 +494,14 @@ allocproc(void)
 {
   struct proc *p;
   // Added
+  int ind = -1;
+  do{
+    ind = removeFirst(&unused, unused_head_lock);
+  } while (ind == -1);
+  p = &proc[ind];
+  acquire(&p->lock);
+  goto found;
+/*
   int ind = removeFirst(&unused, unused_head_lock);
   if(ind == -1){return 0;}        // Unused is empty.
   else{
@@ -501,20 +509,8 @@ allocproc(void)
     acquire(&p->lock);
     goto found;
   }
+*/
  
-  /*
-  // Old implementation:
-
-  for(p = proc; p < &proc[NPROC]; p++) {
-    acquire(&p->lock);
-    if(p->state == UNUSED) {
-      goto found;
-    } else {
-      release(&p->lock);
-    }
-  }
-  return 0;
-  */
 found:
   p->pid = allocpid();
   p->state = USED;
@@ -566,8 +562,8 @@ freeproc(struct proc *p)
   // Remove from ZOMBIE list
   remove(&zombie, p->ind, zombie_head_lock);
   // Add to UNUSED list
-  addLink(&unused, p->ind, unused_head_lock);
   p->state = UNUSED;
+  addLink(&unused, p->ind, unused_head_lock);
 }
 
 // Create a user page table for a given process,
