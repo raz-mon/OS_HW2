@@ -10,6 +10,7 @@ volatile static int started = 0;
 void
 main()
 {
+  // Count cpus here.
   if(cpuid() == 0){
     consoleinit();
     printfinit();
