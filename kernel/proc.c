@@ -196,7 +196,7 @@ int removeFirst(int *first_p, int *head_lock){
     // printf("Tried to extract a link from an empty list.\n");
     // cas(head_lock, 1, 0);   // Release the head_lock.
     while (cas(head_lock, 1, 0))
-      printf("Wierd problem3!\n");
+      ;; //printf("Wierd problem3!\n");
     return -1;
   }
 
