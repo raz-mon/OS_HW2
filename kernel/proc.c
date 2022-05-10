@@ -123,17 +123,6 @@ steal_process(void){
   return -1;        // Didn't manage to steal a process.
 }
 
-
-/*    Old implementation - new function does different things.
-// This function return the CPU INDEX which we can be stealing from
-int steal_procces(){
-  for(int i = 0; i < NCPU; i++){
-    if(cpus[i].process_count > 0){return i;}
-  }
-  return -1;
-}
-*/
-
 // Add a link to a "linked-list" to the END of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
 void addLink(int *first_ind, int to_add, int *head_lock){
@@ -832,10 +821,10 @@ scheduler(void)
 
  // IF BLNCFLG=OFF:
 #ifdef OFF
+  int ind;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
-    int ind;
     while (c->first != -1)       // Ready list of the cpu not empty.
     {
       ind = removeFirst(&c->first, &c->first_head_lock);
@@ -854,10 +843,10 @@ scheduler(void)
  // IF BLNCFLG=ON:
 #ifdef ON
   int stealed_ind;
+  int ind;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
-    int ind;
     // while (c->first != -1)       // Ready list of the cpu not empty.
     if (c->first != -1)
     {
@@ -868,6 +857,7 @@ scheduler(void)
         p->state = RUNNING;
         c->proc = p;
         swtch(&c->context, &p->context);
+        
         // Process is done running for now.
         c->proc = 0;
         release(&p->lock);
