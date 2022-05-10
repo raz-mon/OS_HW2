@@ -1075,8 +1075,10 @@ kill(int pid)
         // Wake process from sleep().
         p->state = RUNNABLE;
         // Added (Should we also use ifdef here to perform optimization? I think so.)
-        remove(&sleeping, p->ind, sleeping_head_lock);
-        addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);
+        if (remove(&sleeping, p->ind, sleeping_head_lock) != -1)
+          addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);
+        else
+          printf("Problem!@#$ Sleeping process not found in sleeping 2(Someone else took it?)\n");
       }
       release(&p->lock);
       return 0;
