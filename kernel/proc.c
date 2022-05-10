@@ -770,12 +770,13 @@ exit(int status)
   p->xstate = status;
   p->state = ZOMBIE;
 
+
+  release(&wait_lock);
+  
   // Added
   // add p to the zombie list
   addLink(&zombie, p->ind, zombie_head_lock);
   // End of addition.
-
-  release(&wait_lock);
 
   // Jump into the scheduler, never to return.
   sched();
