@@ -196,7 +196,11 @@ int removeFirst(int *first_p, struct spinlock head_lock){
   // Empty list case.
   if (*first_p == -1){
     // printf("Tried to extract a link from an empty list.\n");
+    // cas(head_lock, 1, 0);   // Release the head_lock.
     release(&head_lock);
+    
+    // while (cas(head_lock, 1, 0))
+    //   ;; //printf("Wierd problem3!\n");
     return -1;
   }
 
@@ -204,14 +208,9 @@ int removeFirst(int *first_p, struct spinlock head_lock){
   int temp_ind = *first_p;
   // printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);           // Take first node's lock.
- 
- 
- 
   // Release dummy head lock. First lock is already obtained (lock held).
-  // release(&head_lock);
-
-
-
+  release(&head_lock);
+  
   // while (cas(head_lock, 1, 0))   // cas should return false here (because it succeeded!!).
   //   printf("Wierd problem4!\n");
 
@@ -225,18 +224,12 @@ int removeFirst(int *first_p, struct spinlock head_lock){
     release_lock(temp_ind);
     // printf("Releasing %d\n", next_ind);
     release_lock(next_ind);
-
-    release(&head_lock);
-
     return temp_ind;
   }
   else{                           // 1-component list.
     *first_p = -1;                // Empty list.
     // printf("Releasing %d\n", temp_ind);
     release_lock(temp_ind);       // Release it's lock.
-    
-    release(&head_lock);
-
     return temp_ind;              // Return index removed.
   }
 }
@@ -256,13 +249,18 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   if(*first_p == -1){
     // printf("Tried to extract a link from an empty list.\n");
     release(&head_lock);
+
+    // cas(head_lock, 1, 0);   // Release the head_lock.
     return -1;
   }
 
   // List is not empty.
   // printf("Taking %d\n", *first_p);
   get_lock(*first_p);                       // Get lock of first node.
+  // Release the head-lock. The first link is already held, so no problem letting it go.
+  release(&head_lock);
   
+  // cas(head_lock, 1, 0);
 
   if (ind == *first_p){                 // The element we wish to extract from the list is the first element.
     if (getNext(*first_p) == -1){       // List of one element, which is the wanted element.
@@ -270,8 +268,6 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
       *first_p = -1;
       // printf("Releasing %d\n", temp);
       release_lock(temp);
-
-      release(&head_lock);
       return 1;
     }
     else{                               // List of more than one element.
@@ -285,14 +281,9 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
         release_lock(temp);
         // printf("Releasing %d\n", temp2);
         release_lock(temp2);
-
-        release(&head_lock);
         return 1;
     }
   }
-
-  // Release the head-lock. The first link is already held, so no problem letting it go.
-  release(&head_lock);
 
   // Component to remove is not the first node.
   int prev = *first_p;
@@ -302,7 +293,7 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
     // printf("Taking %d\n", curr);
     get_lock(curr);                     // Lock "current" node (process).
     if (curr == ind){
- 
+
       // Delete node from list.
       proc[prev].next = proc[curr].next;
       proc[curr].next = -1;
@@ -370,6 +361,7 @@ procinit(void)
     cp->first = -1;
     initlock(&cp->head_lock, "head_lock");
     
+    // cp->first_head_lock = 0;       // Initialized as not locked. Locked = 0 = false. 1 is true --> locked.
     cp->process_count = 0;
     cp->cpu_num = j;
     j++;
@@ -623,6 +615,8 @@ userinit(void)
   // Note: The process was already removed from the 'unused' list in 'allocproc'.
   addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);                 // Add this link to this cpu's list.
   release(&p->lock);
+
+  // printf("Finished userinit.\n");
 }
 
 // Grow or shrink user memory by n bytes.
