@@ -41,11 +41,9 @@ int zombie = -1;
 int unused = -1;
 
 struct spinlock sleeping_head_lock;
-initlock(&sleeping_head_lock, "sleeping_head_lock");
 struct spinlock zombie_head_lock;
-initlock(&zombie_head_lock, "zombie_head_lock");
 struct spinlock unused_head_lock;
-initlock(&unused_head_lock, "unused_head_lock");
+
 
 /*
 int sleeping_head_lock = 0;
@@ -368,6 +366,10 @@ procinit(void)
     cp->cpu_num = j;
     j++;
   }
+  initlock(&sleeping_head_lock, "sleeping_head_lock");
+  initlock(&zombie_head_lock, "zombie_head_lock");
+  initlock(&unused_head_lock, "unused_head_lock");
+
   // mycpu()->first = -1;                      // Initialize the 'first' field of the first cpu (applied to cpu 0 only!).
   // mycpu()->cpu_id = cpuid();
 
