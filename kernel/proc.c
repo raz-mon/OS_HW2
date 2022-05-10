@@ -844,7 +844,7 @@ scheduler(void)
     }
   }
 #endif
-
+// Wsl2 - Check it out.
  // IF BLNCFLG=ON:
 #ifdef ON
   // int stealed_ind;
@@ -852,8 +852,8 @@ scheduler(void)
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
-    while (c->first != -1)       // Ready list of the cpu not empty.
-    // if (c->first != -1)
+    // while (c->first != -1)       // Ready list of the cpu not empty.
+    if (c->first != -1)
     {
       ind = removeFirst(&c->first, &c->first_head_lock);
       if (ind != -1){           // No-one stole the only process in the list (if there was one..).
@@ -868,7 +868,6 @@ scheduler(void)
         release(&p->lock);
       }
     }
-    /*
     else{                         // Steal a process from another cpu.
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
@@ -888,7 +887,6 @@ scheduler(void)
         release(&p->lock);
       }
     }
-      */
   }
 #endif
 }
