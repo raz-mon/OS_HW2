@@ -271,8 +271,9 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   // List is not empty.
   // printf("Taking %d\n", *first_p);
   get_lock(*first_p);                       // Get lock of first node.
-  // Release the head-lock. The first link is already held, so no problem letting it go.
-  release(&head_lock);
+  
+  
+  
   
   // cas(head_lock, 1, 0);
 
@@ -282,6 +283,11 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
       *first_p = -1;
       // printf("Releasing %d\n", temp);
       release_lock(temp);
+
+      // Release the head-lock. The first link is already held, so no problem letting it go.
+      release(&head_lock);
+
+
       return 1;
     }
     else{                               // List of more than one element.
@@ -295,9 +301,17 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
         release_lock(temp);
         // printf("Releasing %d\n", temp2);
         release_lock(temp2);
+
+        // Release the head-lock. The first link is already held, so no problem letting it go.
+        release(&head_lock);
+
+
         return 1;
     }
   }
+
+  // Release the head-lock. The first link is already held, so no problem letting it go.
+  release(&head_lock);
 
   // Component to remove is not the first node.
   int prev = *first_p;
