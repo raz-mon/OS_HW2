@@ -366,6 +366,8 @@ procinit(void)
     cp->cpu_num = j;
     j++;
   }
+
+  // Initialize head-locks of global lists (sleeping, zombie and unused).
   initlock(&sleeping_head_lock, "sleeping_head_lock");
   initlock(&zombie_head_lock, "zombie_head_lock");
   initlock(&unused_head_lock, "unused_head_lock");

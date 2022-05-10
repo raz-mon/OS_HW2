@@ -17,6 +17,7 @@ Todo:
 - Add balancing optimization to kill also (AS WAKEUP, add it to the proper list in each of the states of BLNCFLG).
 
 - Steal - still making problems (aqcuire).
+    Possible problem - wakeup - should traverse the sleeping list.. (Can lock the head while doing so I think..).
 
 
 
