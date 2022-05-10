@@ -139,8 +139,8 @@ void addLink(int *first_ind, int to_add, int *head_lock){
     // Succeeded to replace -1 with 'to_add', which is the new head of the list.
     release_lock(to_add);
     // Release dummy-head here.
-    if (cas(head_lock, 1, 0))
-    printf("Wierd problem1!\n");
+    while (cas(head_lock, 1, 0))
+      printf("Wierd problem1!\n");
     return;
   }
 
@@ -160,7 +160,7 @@ void addLink(int *first_ind, int to_add, int *head_lock){
   // printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);
   // Release 'dummy-head' here.
-  if (cas(head_lock, 1, 0))
+  while (cas(head_lock, 1, 0))
     printf("Wierd problem2!\n");
 
   int next_ind = proc[temp_ind].next;
@@ -195,7 +195,7 @@ int removeFirst(int *first_p, int *head_lock){
   if (*first_p == -1){
     // printf("Tried to extract a link from an empty list.\n");
     // cas(head_lock, 1, 0);   // Release the head_lock.
-    if (cas(head_lock, 1, 0))
+    while (cas(head_lock, 1, 0))
       printf("Wierd problem3!\n");
     return -1;
   }
@@ -205,7 +205,7 @@ int removeFirst(int *first_p, int *head_lock){
   // printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);           // Take first node's lock.
   // Release dummy head lock. First lock is already obtained (lock held).
-  if (cas(head_lock, 1, 0))   // cas should return false here (because it succeeded!!).
+  while (cas(head_lock, 1, 0))   // cas should return false here (because it succeeded!!).
     printf("Wierd problem4!\n");
 
   int next_ind = getNext(*first_p);     // No concurency problem here, since the first node is locked --> No-one can change his successor.
