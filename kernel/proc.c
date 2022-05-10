@@ -52,7 +52,16 @@ int unused_head_lock = 0;
 */
 
 // Current number of cpu's
-int num_cpus = 3;
+#ifdef numcpus
+#define CPUS numcpus
+#else
+#define CPUS -1
+#endif
+
+
+
+int num_cpus = CPUS;
+printf("num_cpus: %d\n", num_cpus);
 
 /*
 // Nice pattern for concurrent programming with cas.

@@ -63,8 +63,8 @@ OBJDUMP = $(TOOLPREFIX)objdump
 
 CFLAGS = -Wall -Werror -O -fno-omit-frame-pointer -ggdb
 CFLAGS += -MD
-CFLAGS += -D $(BLNCFLG)
-# CFLAGS += -D CPUS
+CFLAGS += -D$(BLNCFLG)
+CFLAGS += -Dnumcpus=$(CPUS)
 CFLAGS += -mcmodel=medany
 CFLAGS += -ffreestanding -fno-common -nostdlib -mno-relax
 CFLAGS += -I.
