@@ -208,9 +208,11 @@ int removeFirst(int *first_p, struct spinlock head_lock){
   int temp_ind = *first_p;
   // printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);           // Take first node's lock.
-  // Release dummy head lock. First lock is already obtained (lock held).
-  release(&head_lock);
   
+  
+  
+  
+
   // while (cas(head_lock, 1, 0))   // cas should return false here (because it succeeded!!).
   //   printf("Wierd problem4!\n");
 
@@ -224,12 +226,24 @@ int removeFirst(int *first_p, struct spinlock head_lock){
     release_lock(temp_ind);
     // printf("Releasing %d\n", next_ind);
     release_lock(next_ind);
+    
+    
+    // Release dummy head lock. First lock is already obtained (lock held).
+    release(&head_lock);
+    
+    
     return temp_ind;
   }
   else{                           // 1-component list.
     *first_p = -1;                // Empty list.
     // printf("Releasing %d\n", temp_ind);
     release_lock(temp_ind);       // Release it's lock.
+    
+    
+    // Release dummy head lock. First lock is already obtained (lock held).
+    release(&head_lock);
+    
+    
     return temp_ind;              // Return index removed.
   }
 }
