@@ -1033,21 +1033,26 @@ wakeup(void *chan)
         p->state = RUNNABLE;
         //Added
         // remove p from sleeping
-        remove(&sleeping, p->ind, sleeping_head_lock);
+        if (remove(&sleeping, p->ind, sleeping_head_lock) != -1){
 
-        #ifdef OFF
-        addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);
-        increase_cpu_counter(&cpus[p->cpu_num]);
-        #endif
+          #ifdef OFF
+          addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);
+          increase_cpu_counter(&cpus[p->cpu_num]);
+          #endif
 
-        #ifdef ON
-        struct cpu *winner;
-        // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
-        winner = find_least_used_cpu();
-        // Add the process to the cpu with the lowest process_count, and increase its process_count.
-        addLink(&winner->first, p->ind, cpus[p->cpu_num].head_lock);
-        increase_cpu_counter(winner);
-        #endif
+          #ifdef ON
+          struct cpu *winner;
+          // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
+          winner = find_least_used_cpu();
+          // Add the process to the cpu with the lowest process_count, and increase its process_count.
+          addLink(&winner->first, p->ind, cpus[p->cpu_num].head_lock);
+          increase_cpu_counter(winner);
+          #endif
+
+        }
+        else{
+          printf("Problem!@#$ Sleeping process not found in sleeping (Someone else took it?)\n");
+        }
       }
       release(&p->lock);
     }
