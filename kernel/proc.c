@@ -40,9 +40,15 @@ int sleeping = -1;
 int zombie = -1;
 int unused = -1;
 
+struct spinlock sleeping_head_lock;
+struct spinlock zombie_head_lock;
+struct spinlock unused_head_lock;
+
+/*
 int sleeping_head_lock = 0;
 int zombie_head_lock = 0;
 int unused_head_lock = 0;
+*/
 
 // Current number of cpu's
 int num_cpus = 3;
@@ -116,7 +122,7 @@ steal_process(void){
   // in the calling function). OR NOT. Can change this to perform all relevant procedures (sounds good!).
   int out;
   for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
-    out = removeFirst(&cp->first, &cp->first_head_lock);
+    out = removeFirst(&cp->first, cp->head_lock);
     if (out != -1)    // Managed to steal a link from the linked list.
       return out;
   }
@@ -125,11 +131,14 @@ steal_process(void){
 
 // Add a link to a "linked-list" to the END of a linked-list.
 // If successful, return the added index ("link"). Else --> Return -1.
-void addLink(int *first_ind, int to_add, int *head_lock){
+void addLink(int *first_ind, int to_add, struct spinlock head_lock){
   // Get dummy-head of the list pointed at by 'first_ind'.
-  while(cas(head_lock, 0, 1))       // Busy-wait until the head is clear (not supposed to be long).
-    ;;
-
+  acquire(&head_lock);
+  
+  // while(cas(head_lock, 0, 1))       // Busy-wait until the head is clear (not supposed to be long).
+  //   ;;
+  
+  
   // Taking the lock of the added process.
   get_lock(to_add);
   int temp_ind = *first_ind;
@@ -139,8 +148,10 @@ void addLink(int *first_ind, int to_add, int *head_lock){
     // Succeeded to replace -1 with 'to_add', which is the new head of the list.
     release_lock(to_add);
     // Release dummy-head here.
-    while (cas(head_lock, 1, 0))
-      printf("Wierd problem1!\n");
+    release(&head_lock);
+    
+    // while (cas(head_lock, 1, 0))
+    //   printf("Wierd problem1!\n");
     return;
   }
 
@@ -160,8 +171,10 @@ void addLink(int *first_ind, int to_add, int *head_lock){
   // printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);
   // Release 'dummy-head' here.
-  while (cas(head_lock, 1, 0))
-    printf("Wierd problem2!\n");
+  release(&head_lock);
+
+  // while (cas(head_lock, 1, 0))
+  //   printf("Wierd problem2!\n");
 
   int next_ind = proc[temp_ind].next;
   while (next_ind != -1){
@@ -182,11 +195,13 @@ void addLink(int *first_ind, int to_add, int *head_lock){
 
 // Remove the first "link" of the linked-list.
 // Return the value of the first "link".
-int removeFirst(int *first_p, int *head_lock){
+int removeFirst(int *first_p, struct spinlock head_lock){
   // Get the dummy head lock (critical sections - dealing with the head of the list, until first link is held).
+  acquire(&head_lock);
+  
   // Wait for it to be 0 (meaining it is free). Should be a short wait.
-  while(cas(head_lock, 0, 1))
-    ;;
+  // while(cas(head_lock, 0, 1))
+  //   ;;
 
 
   // The first part is not fully synchronized - Think about a way to overcome this.
@@ -195,8 +210,10 @@ int removeFirst(int *first_p, int *head_lock){
   if (*first_p == -1){
     // printf("Tried to extract a link from an empty list.\n");
     // cas(head_lock, 1, 0);   // Release the head_lock.
-    while (cas(head_lock, 1, 0))
-      ;; //printf("Wierd problem3!\n");
+    release(&head_lock);
+    
+    // while (cas(head_lock, 1, 0))
+    //   ;; //printf("Wierd problem3!\n");
     return -1;
   }
 
@@ -205,8 +222,10 @@ int removeFirst(int *first_p, int *head_lock){
   // printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);           // Take first node's lock.
   // Release dummy head lock. First lock is already obtained (lock held).
-  while (cas(head_lock, 1, 0))   // cas should return false here (because it succeeded!!).
-    printf("Wierd problem4!\n");
+  release(&head_lock);
+  
+  // while (cas(head_lock, 1, 0))   // cas should return false here (because it succeeded!!).
+  //   printf("Wierd problem4!\n");
 
   int next_ind = getNext(*first_p);     // No concurency problem here, since the first node is locked --> No-one can change his successor.
   if (next_ind != -1){            // List has more than one component.
@@ -230,17 +249,21 @@ int removeFirst(int *first_p, int *head_lock){
 
 // Remove link with index (in the proc_table) ind from the list.
 // Return 1 (true) for success, 0 (false) for failure.
-int remove(int *first_p, int ind, int *head_lock){
+int remove(int *first_p, int ind, struct spinlock head_lock){
   // Get dummy head lock
-  while(cas(head_lock, 0, 1))
-    ;;
+  acquire(&head_lock);
+
+  // while(cas(head_lock, 0, 1))
+  //   ;;
 
   
   // printf("\nEntered remove. Removing process %d from a list\n");
   // Handle empty list case.
   if(*first_p == -1){
     // printf("Tried to extract a link from an empty list.\n");
-    cas(head_lock, 1, 0);   // Release the head_lock.
+    release(&head_lock);
+
+    // cas(head_lock, 1, 0);   // Release the head_lock.
     return -1;
   }
 
@@ -248,7 +271,9 @@ int remove(int *first_p, int ind, int *head_lock){
   // printf("Taking %d\n", *first_p);
   get_lock(*first_p);                       // Get lock of first node.
   // Release the head-lock. The first link is already held, so no problem letting it go.
-  cas(head_lock, 1, 0);
+  release(&head_lock);
+  
+  // cas(head_lock, 1, 0);
 
   if (ind == *first_p){                 // The element we wish to extract from the list is the first element.
     if (getNext(*first_p) == -1){       // List of one element, which is the wanted element.
@@ -347,7 +372,9 @@ procinit(void)
   int j = 0;
   for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
     cp->first = -1;
-    cp->first_head_lock = 0;       // Initialized as not locked. Locked = 0 = false. 1 is true --> locked.
+    initlock(&cp->head_lock, "head_lock");
+    
+    // cp->first_head_lock = 0;       // Initialized as not locked. Locked = 0 = false. 1 is true --> locked.
     cp->process_count = 0;
     cp->cpu_num = j;
     j++;
@@ -370,7 +397,7 @@ procinit(void)
       p->ind = i;
       p->cpu_num = 0;
       i++;
-      addLink(&unused, p->ind, &unused_head_lock);      // Add link to the unused list, if this is not the init proc which is used.
+      addLink(&unused, p->ind, unused_head_lock);      // Add link to the unused list, if this is not the init proc which is used.
   }
   // printf("unused list: \n");
   // printList(&unused);
@@ -435,7 +462,7 @@ allocproc(void)
 {
   struct proc *p;
   // Added
-  int ind = removeFirst(&unused, &unused_head_lock);
+  int ind = removeFirst(&unused, unused_head_lock);
   if(ind == -1){return 0;}        // Unused is empty.
   else{
     p = &proc[ind];
@@ -505,9 +532,9 @@ freeproc(struct proc *p)
   p->xstate = 0;
   // Added
   // Remove from ZOMBIE list
-  remove(&zombie, p->ind, &zombie_head_lock);
+  remove(&zombie, p->ind, zombie_head_lock);
   // Add to UNUSED list
-  addLink(&unused, p->ind, &unused_head_lock);
+  addLink(&unused, p->ind, unused_head_lock);
   p->state = UNUSED;
 }
 
@@ -593,7 +620,7 @@ userinit(void)
   cpus[p->cpu_num].process_count = 1;     // Initialize process_count of the first cpu with 1 (init-proc).
   // add p to cpu runnable list
   // Note: The process was already removed from the 'unused' list in 'allocproc'.
-  addLink(&cpus[p->cpu_num].first, p->ind, &cpus[p->cpu_num].first_head_lock);                 // Add this link to this cpu's list.
+  addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);                 // Add this link to this cpu's list.
   release(&p->lock);
 
   // printf("Finished userinit.\n");
@@ -742,7 +769,7 @@ exit(int status)
 
   // Added
   // add p to the zombie list
-  addLink(&zombie, p->ind, &zombie_head_lock);
+  addLink(&zombie, p->ind, zombie_head_lock);
   // End of addition.
 
   release(&wait_lock);
@@ -927,7 +954,7 @@ yield(void)
   //Added
   // add p to the cpu runnable list
   p->state = RUNNABLE;
-  addLink(&cpus[p->cpu_num].first, p->ind, &cpus[p->cpu_num].first_head_lock);
+  addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);
   sched();
   release(&p->lock);
 }
@@ -977,7 +1004,7 @@ sleep(void *chan, struct spinlock *lk)
 
   // Added
   // add p to the sleeping list
-  addLink(&sleeping, p->ind, &sleeping_head_lock);
+  addLink(&sleeping, p->ind, sleeping_head_lock);
   // End of addition.
 
   sched();
@@ -1005,7 +1032,7 @@ wakeup(void *chan)
         p->state = RUNNABLE;
         //Added
         // remove p from sleeping
-        remove(&sleeping, p->ind, &sleeping_head_lock);
+        remove(&sleeping, p->ind, sleeping_head_lock);
 
         #ifdef OFF
         addLink(&cpus[p->cpu_num].first, p->ind, &cpus[p->cpu_num].first_head_lock);
@@ -1042,8 +1069,8 @@ kill(int pid)
         // Wake process from sleep().
         p->state = RUNNABLE;
         // Added (Should we also use ifdef here to perform optimization? I think so.)
-        remove(&sleeping, p->ind, &sleeping_head_lock);
-        addLink(&cpus[p->cpu_num].first, p->ind, &cpus[p->cpu_num].first_head_lock);
+        remove(&sleeping, p->ind, sleeping_head_lock);
+        addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);
       }
       release(&p->lock);
       return 0;
@@ -1090,25 +1117,28 @@ void
 check_LL(void)
 {
   printf("checking LL implementation...\n");
-  int newList_head_lock = 0;
+  struct spinlock newList_head_lock;
+  
+  // int newList_head_lock = 0;
+  initlock(&newList_head_lock, "newListHeadLock");
   int newList;
-  remove(&unused, 55, &unused_head_lock);
+  remove(&unused, 55, unused_head_lock);
   newList = 55;
 
-  remove(&unused, 56, &unused_head_lock);
-  addLink(&newList, 56, &newList_head_lock);
+  remove(&unused, 56, unused_head_lock);
+  addLink(&newList, 56, newList_head_lock);
   
-  remove(&unused, 57, &unused_head_lock);
-  addLink(&newList, 57, &newList_head_lock);
+  remove(&unused, 57, unused_head_lock);
+  addLink(&newList, 57, newList_head_lock);
 
   printList(&newList);
   
-  int removed = removeFirst(&newList, &newList_head_lock);
+  int removed = removeFirst(&newList, newList_head_lock);
   printf("removed link with proc ind: %d\n", removed);
 
   printList(&newList);
   
-  removed = remove(&newList, 57, &newList_head_lock);
+  removed = remove(&newList, 57, newList_head_lock);
   printf("removed link with proc ind: %d\n", 57);
   
   printList(&newList);

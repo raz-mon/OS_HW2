@@ -27,7 +27,8 @@ struct cpu {
 
   // Added:
   int first;                  // Index of the first node (process) in the READY-list (RUNNABLE-list) of the cpu.
-  int first_head_lock;
+  // int first_head_lock;
+  struct spinlock head_lock;  // lock the head of the list in the beginning of operations.
   uint64 process_count;       // count the number of processes admitted to this cpu since the system started running.
   int cpu_num;                 // The index of this cpu in cpus array.
 };
