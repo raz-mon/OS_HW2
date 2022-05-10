@@ -41,8 +41,11 @@ int zombie = -1;
 int unused = -1;
 
 struct spinlock sleeping_head_lock;
+initlock(&sleeping_head_lock, "sleeping_head_lock");
 struct spinlock zombie_head_lock;
+initlock(&zombie_head_lock, "zombie_head_lock");
 struct spinlock unused_head_lock;
+initlock(&unused_head_lock, "unused_head_lock");
 
 /*
 int sleeping_head_lock = 0;
@@ -149,22 +152,8 @@ void addLink(int *first_ind, int to_add, struct spinlock head_lock){
     release_lock(to_add);
     // Release dummy-head here.
     release(&head_lock);
-    
-    // while (cas(head_lock, 1, 0))
-    //   printf("Wierd problem1!\n");
     return;
   }
-
-
-/* Old implementation of the above code:
-  if(temp_ind == -1){
-    *first_ind = to_add;
-    // printf("added process in index %d, to a list.\n", to_add);
-    // printf("Releasing %d\n", to_add);
-    release_lock(to_add);
-    return;
-  }
-*/
 
   // If got here -> List is not empty, head is still locked (dummy).
   // Acquire first lock
