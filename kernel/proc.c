@@ -920,7 +920,7 @@ scheduler(void)
       }
     // }
   }
-#endif
+#endif 
 }
 
 // Switch to scheduler.  Must hold only p->lock
