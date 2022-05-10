@@ -302,7 +302,7 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
     // printf("Taking %d\n", curr);
     get_lock(curr);                     // Lock "current" node (process).
     if (curr == ind){
-
+ 
       // Delete node from list.
       proc[prev].next = proc[curr].next;
       proc[curr].next = -1;
