@@ -201,7 +201,8 @@ int removeFirst(int *first_p, int *head_lock){
   // printf("Taking %d\n", temp_ind);
   get_lock(temp_ind);           // Take first node's lock.
   // Release dummy head lock. First lock is already obtained (lock held).
-  cas(head_lock, 1, 0);
+  if (cas(head_lock, 1, 0))
+    printf("lafaskfsldakfjsalfsjadfdd\n");
 
   int next_ind = getNext(*first_p);     // No concurency problem here, since the first node is locked --> No-one can change his successor.
   if (next_ind != -1){            // List has more than one component.
