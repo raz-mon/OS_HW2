@@ -725,8 +725,10 @@ reparent(struct proc *p)
     if(pp->parent == p){
       pp->parent = initproc;
       wakeup(initproc);
+      return;
     }
   }
+  printf("Problem!! Did not find parent of proces %d\n", p->ind);
 }
 
 // Exit the current process.  Does not return.
