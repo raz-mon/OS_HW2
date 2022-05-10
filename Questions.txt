@@ -4,7 +4,7 @@
 - How can I get the number of cpus?
     Or can I assume that they are as NCPU?
 
-- The new note - relevant only for the taking of the locks in our linked-lists - take them by order (?).
+- In the original scheduler - why is there 'interon()' after each 'epoch' (i.e., after we go over whole proc array)???
 
 
 

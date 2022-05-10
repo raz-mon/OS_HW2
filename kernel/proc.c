@@ -728,7 +728,6 @@ reparent(struct proc *p)
       return;
     }
   }
-  printf("Problem!! Did not find parent of proces %d\n", p->ind);
 }
 
 // Exit the current process.  Does not return.
@@ -901,6 +900,7 @@ scheduler(void)
     }
     /*
     else{                         // Steal a process from another cpu.
+    */
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
       if (stealed_ind != -1){           // Managed to steal a process ;)
@@ -918,8 +918,7 @@ scheduler(void)
         c->proc = 0;
         release(&p->lock);
       }
-    }
-    */
+    // }
   }
 #endif
 }
