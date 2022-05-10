@@ -61,7 +61,7 @@ int unused_head_lock = 0;
 
 
 int num_cpus = CPUS;
-printf("num_cpus: %d\n", num_cpus);
+
 
 /*
 // Nice pattern for concurrent programming with cas.
@@ -392,6 +392,8 @@ proc_mapstacks(pagetable_t kpgtbl) {
 void
 procinit(void)
 {
+  printf("num_cpus: %d\n", num_cpus);
+  
   // Initialize cpus 'special' fields.
   int j = 0;
   for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
