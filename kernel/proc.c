@@ -44,21 +44,12 @@ struct spinlock sleeping_head_lock;
 struct spinlock zombie_head_lock;
 struct spinlock unused_head_lock;
 
-
-/*
-int sleeping_head_lock = 0;
-int zombie_head_lock = 0;
-int unused_head_lock = 0;
-*/
-
 // Current number of cpu's
 #ifdef numcpus
 #define CPUS numcpus
 #else
 #define CPUS -1
 #endif
-
-
 
 int num_cpus = CPUS;
 
@@ -195,12 +186,6 @@ int removeFirst(int *first_p, struct spinlock head_lock){
   // Get the dummy head lock (critical sections - dealing with the head of the list, until first link is held).
   acquire(&head_lock);
   
-  // Wait for it to be 0 (meaining it is free). Should be a short wait.
-  // while(cas(head_lock, 0, 1))
-  //   ;;
-
-
-  // The first part is not fully synchronized - Think about a way to overcome this.
   // printf("\n\nEntered removeFirst\n\n");
   // Empty list case.
   if (*first_p == -1){
@@ -219,9 +204,6 @@ int removeFirst(int *first_p, struct spinlock head_lock){
   get_lock(temp_ind);           // Take first node's lock.
   
   
-  
-  
-
   // while (cas(head_lock, 1, 0))   // cas should return false here (because it succeeded!!).
   //   printf("Wierd problem4!\n");
 
@@ -258,22 +240,16 @@ int removeFirst(int *first_p, struct spinlock head_lock){
 }
 
 // Remove link with index (in the proc_table) ind from the list.
-// Return 1 (true) for success, 0 (false) for failure.
+// Return 1 (true) for success, -1 (false) for failure.
 int remove(int *first_p, int ind, struct spinlock head_lock){
   // Get dummy head lock
   acquire(&head_lock);
 
-  // while(cas(head_lock, 0, 1))
-  //   ;;
-
-  
   // printf("\nEntered remove. Removing process %d from a list\n");
   // Handle empty list case.
   if(*first_p == -1){
     // printf("Tried to extract a link from an empty list.\n");
     release(&head_lock);
-
-    // cas(head_lock, 1, 0);   // Release the head_lock.
     return -1;
   }
 
@@ -281,10 +257,6 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   // printf("Taking %d\n", *first_p);
   get_lock(*first_p);                       // Get lock of first node.
   
-  
-  
-  
-  // cas(head_lock, 1, 0);
 
   if (ind == *first_p){                 // The element we wish to extract from the list is the first element.
     if (getNext(*first_p) == -1){       // List of one element, which is the wanted element.
@@ -347,7 +319,7 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   }
   // printf("Releasing %d\n", prev);
   release_lock(prev);
-  return 0;                        // Node to remove not found (it's index).
+  return -1;                        // Node to remove not found (it's index).
 }
 
 // Print the linked-list, pointed at by first. Used for debugging purposses.
@@ -560,7 +532,8 @@ freeproc(struct proc *p)
   p->xstate = 0;
   // Added
   // Remove from ZOMBIE list
-  remove(&zombie, p->ind, zombie_head_lock);
+  if (remove(&zombie, p->ind, zombie_head_lock) == -1)
+    printf("Problem - Could not remove specified zombie from zombie list!\n");
   // Add to UNUSED list
   p->state = UNUSED;
   addLink(&unused, p->ind, unused_head_lock);
