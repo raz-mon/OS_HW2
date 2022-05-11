@@ -781,12 +781,13 @@ exit(int status)
   p->state = ZOMBIE;
 
 
-  release(&wait_lock);
-  
   // Added
   // add p to the zombie list
   addLink(&zombie, p->ind, zombie_head_lock);
   // End of addition.
+  
+  release(&wait_lock);
+  
 
   // Jump into the scheduler, never to return.
   sched();
@@ -1061,8 +1062,9 @@ wakeup(void *chan)
           // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
           winner = find_least_used_cpu();
           // Add the process to the cpu with the lowest process_count, and increase its process_count.
-          // addLink(&winner->first, p->ind, cpus[p->cpu_num].head_lock);
           addLink(&winner->first, p->ind, winner->head_lock);
+          // Old line (bug I think)
+          // addLink(&winner->first, p->ind, cpus[p->cpu_num].head_lock);
           increase_cpu_counter(winner);
           #endif
  
