@@ -291,6 +291,17 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
     }
   }
 
+  /*
+  if (getNext(*first_p) != -1){
+    get_lock(getNext(*first_p));
+    release(&head_lock);
+  }
+  else{
+    release(*first_p);
+    release(&head_lock);
+    return -1;
+  }
+  */
   // Release the head-lock. The first link is already held, so no problem letting it go.
   release(&head_lock);
 
@@ -705,7 +716,7 @@ fork(void)
   // Find cpu with least process_count, add the new process to it's ready-list and incement it's counter.
   struct cpu *least_used_cpu = find_least_used_cpu();
   np->cpu_num = least_used_cpu->cpu_num;
-  addLink(&least_used_cpu->first, np->ind, cpus[np->cpu_num].head_lock);
+  addLink(&least_used_cpu->first, np->ind, least_used_cpu.head_lock);
   increase_cpu_counter(least_used_cpu);
   #endif
   
@@ -1001,16 +1012,16 @@ sleep(void *chan, struct spinlock *lk)
 
 
   acquire(&p->lock);  //DOC: sleeplock1
+  // Added
+  // add p to the sleeping list
+  addLink(&sleeping, p->ind, sleeping_head_lock);
+  // End of addition.
   release(lk);
 
   // Go to sleep.
   p->chan = chan;
   p->state = SLEEPING;
 
-  // Added
-  // add p to the sleeping list
-  addLink(&sleeping, p->ind, sleeping_head_lock);
-  // End of addition.
 
   sched();
 
