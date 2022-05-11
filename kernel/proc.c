@@ -1012,6 +1012,7 @@ sleep(void *chan, struct spinlock *lk)
 
 
   acquire(&p->lock);  //DOC: sleeplock1
+
   // Added
   // add p to the sleeping list
   addLink(&sleeping, p->ind, sleeping_head_lock);
@@ -1060,7 +1061,8 @@ wakeup(void *chan)
           // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
           winner = find_least_used_cpu();
           // Add the process to the cpu with the lowest process_count, and increase its process_count.
-          addLink(&winner->first, p->ind, cpus[p->cpu_num].head_lock);
+          // addLink(&winner->first, p->ind, cpus[p->cpu_num].head_lock);
+          addLink(&winner->first, p->ind, winner->head_lock);
           increase_cpu_counter(winner);
           #endif
 
