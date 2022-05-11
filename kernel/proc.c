@@ -716,7 +716,7 @@ fork(void)
   // Find cpu with least process_count, add the new process to it's ready-list and incement it's counter.
   struct cpu *least_used_cpu = find_least_used_cpu();
   np->cpu_num = least_used_cpu->cpu_num;
-  addLink(&least_used_cpu->first, np->ind, least_used_cpu.head_lock);
+  addLink(&least_used_cpu->first, np->ind, least_used_cpu->head_lock);
   increase_cpu_counter(least_used_cpu);
   #endif
   
