@@ -1065,7 +1065,7 @@ wakeup(void *chan)
           addLink(&winner->first, p->ind, winner->head_lock);
           increase_cpu_counter(winner);
           #endif
-
+ 
         }
         else{
           printf("Problem!@#$ Sleeping process not found in sleeping (Someone else took it?)\n");
