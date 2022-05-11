@@ -1016,11 +1016,11 @@ sleep(void *chan, struct spinlock *lk)
   // add p to the sleeping list
   addLink(&sleeping, p->ind, sleeping_head_lock);
   // End of addition.
-  release(lk);
 
   // Go to sleep.
   p->chan = chan;
   p->state = SLEEPING;
+  release(lk);
 
 
   sched();
