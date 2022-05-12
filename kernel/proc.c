@@ -320,7 +320,7 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
       release_lock(curr);
 
       // Temp: Delete this.
-      release(&head_lock);
+      // release(&head_lock);
 
       return 1;
     }
@@ -333,7 +333,7 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   release_lock(prev);
 
   // Temp: Delete this.
-  release(&head_lock);
+  // release(&head_lock);
 
   return -1;                        // Node to remove not found (it's index).
 }
@@ -659,8 +659,6 @@ userinit(void)
   // Note: The process was already removed from the 'unused' list in 'allocproc'.
   addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);                 // Add this link to this cpu's list.
   release(&p->lock);
-
-  // printf("Finished userinit.\n");
 }
 
 // Grow or shrink user memory by n bytes.
