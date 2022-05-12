@@ -141,7 +141,7 @@ void addLink(int *first_ind, int to_add, struct spinlock head_lock){
   
   // while(cas(head_lock, 0, 1))       // Busy-wait until the head is clear (not supposed to be long).
   //   ;;
-  
+   
    
   // Taking the lock of the added process.
   get_lock(to_add);
