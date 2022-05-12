@@ -944,7 +944,7 @@ scheduler(void)
         release(&p->lock);
       }
     
-    // }
+    }
   }
 #endif 
 }
