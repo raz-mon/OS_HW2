@@ -541,8 +541,10 @@ freeproc(struct proc *p)
   p->chan = 0;
   p->killed = 0;
   p->xstate = 0;
-
   // Added
+  // Remove from ZOMBIE list
+  if (remove(&zombie, p->ind, zombie_head_lock) == -1)
+    printf("Zombie proc not found (not necessarily a problem..\n");
   // Add to UNUSED list
   p->state = UNUSED;
   addLink(&unused, p->ind, unused_head_lock);
@@ -821,9 +823,6 @@ wait(uint64 addr)
             release(&wait_lock);
             return -1;
           }
-          // Remove from ZOMBIE list
-          if (remove(&zombie, p->ind, zombie_head_lock) == -1)
-            printf("Problem - Could not remove specified zombie from zombie list!\n");
           freeproc(np);
           release(&np->lock);
           release(&wait_lock);
