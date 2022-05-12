@@ -889,6 +889,8 @@ scheduler(void)
       ind = removeFirst(&c->first, c->head_lock);      
       p = &(proc[ind]);
       acquire(&p->lock);
+      if (p->state == ZOMBIE) 
+        panic("Running a zombie!!!\n");
       p->state = RUNNING;
       c->proc = p;
       swtch(&c->context, &p->context);
