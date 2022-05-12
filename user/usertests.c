@@ -2838,7 +2838,7 @@ main(int argc, char *argv[])
     {reparent, "reparent" },
     {twochildren, "twochildren"},
     {forkfork, "forkfork"},
-    {forkforkfork, "forkforkfork"},
+    // {forkforkfork, "forkforkfork"},
     {argptest, "argptest"},
     {createdelete, "createdelete"},
     {linkunlink, "linkunlink"},
@@ -2880,7 +2880,7 @@ main(int argc, char *argv[])
     {dirfile, "dirfile"},
     {iref, "iref"},
     {forktest, "forktest"},
-    {bigdir, "bigdir"}, // slow
+    // {bigdir, "bigdir"}, // slow
     { 0, 0},
   };
 

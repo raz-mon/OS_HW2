@@ -300,7 +300,7 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   }
 
   // Release the head-lock. The first link is already held, so no problem letting it go.
-  // release(&head_lock);
+  release(&head_lock);
 
   // Component to remove is not the first node.
   int prev = *first_p;
@@ -319,10 +319,6 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
       // printf("Releasing %d\n", curr);
       release_lock(curr);
 
-      //Temp, delete this:
-      release(&head_lock);
-
-
       return 1;
     }
     // printf("Releasing %d\n", prev);
@@ -332,10 +328,6 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   }
   // printf("Releasing %d\n", prev);
   release_lock(prev);
-
-  //Temp, delete this:
-  release(&head_lock);
-
 
   return -1;                        // Node to remove not found (it's index).
 }
@@ -483,8 +475,6 @@ myproc(void) {
 
 int
 allocpid() {
-  // int pid;
-  
   // new implementation (using cas).
   int old;
   do{
@@ -494,6 +484,7 @@ allocpid() {
 
 /*
   // old implementation (using pidlock).
+  int pid;
   acquire(&pid_lock);
   pid = nextpid;
   nextpid = nextpid + 1;
@@ -518,15 +509,6 @@ allocproc(void)
   p = &proc[ind];
   acquire(&p->lock);
   goto found;
-/*
-  int ind = removeFirst(&unused, unused_head_lock);
-  if(ind == -1){return 0;}        // Unused is empty.
-  else{
-    p = &proc[ind];
-    acquire(&p->lock);
-    goto found;
-  }
-*/
  
 found:
   p->pid = allocpid();
@@ -562,6 +544,11 @@ found:
 static void
 freeproc(struct proc *p)
 {
+  // Added
+  // Remove from ZOMBIE list
+  if (remove(&zombie, p->ind, zombie_head_lock) == -1)
+    printf("Zombie proc not found (not necessarily a problem..).\n");
+  
   if(p->trapframe)
     kfree((void*)p->trapframe);
   p->trapframe = 0;
@@ -575,10 +562,8 @@ freeproc(struct proc *p)
   p->chan = 0;
   p->killed = 0;
   p->xstate = 0;
-  // Added
-  // Remove from ZOMBIE list
-  if (remove(&zombie, p->ind, zombie_head_lock) == -1)
-    printf("Zombie proc not found (not necessarily a problem..).\n");
+
+  p->cpu_num = 0;
   // Add to UNUSED list
   p->state = UNUSED;
   addLink(&unused, p->ind, unused_head_lock);
