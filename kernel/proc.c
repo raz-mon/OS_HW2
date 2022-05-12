@@ -291,17 +291,6 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
     }
   }
 
-  /*
-  if (getNext(*first_p) != -1){
-    get_lock(getNext(*first_p));
-    release(&head_lock);
-  }
-  else{
-    release(*first_p);
-    release(&head_lock);
-    return -1;
-  }
-  */
   // Release the head-lock. The first link is already held, so no problem letting it go.
   release(&head_lock);
 
@@ -332,6 +321,31 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   release_lock(prev);
   return -1;                        // Node to remove not found (it's index).
 }
+
+/*
+// Search the list pointed at by first_p for the index search_for, return the index of the process if found, -1 otherwise
+int search_list(int *first_p, int search_for, struct spinlock head_lock){
+  acquire(&head_lock);
+  
+  // Empty list
+  if (*first_p == -1){
+    release(&head_lock);
+    return -1;
+  }
+
+  // Non-empty list
+  int curr = *first_p;
+  get_lock(curr);
+  if (curr == search_for){
+    release
+  }
+  int next = getNext(curr);
+  while (next != -1){
+
+  }
+
+}
+*/
 
 // Print the linked-list, pointed at by first. Used for debugging purposses.
 void printList(int *first){
@@ -774,12 +788,10 @@ exit(int status)
   // Parent might be sleeping in wait().
   wakeup(p->parent);
   
-
   acquire(&p->lock);
 
   p->xstate = status;
   p->state = ZOMBIE;
-
 
   // Added
   // add p to the zombie list

@@ -10,10 +10,8 @@
 
 
 Todo:
-- Understand how to get the current number of running cpus (if we need to), and assign that value to the global variable num_cpus in proc.c.
-    Currently initialized to 3.
 
-- Make sure implementation of head-locking is good (I think it's great).
+- Change wakeup - to iterate over the sleeping list!! See assignment specification!
 
 - Add balancing optimization to kill also (AS WAKEUP, add it to the proper list in each of the states of BLNCFLG).
 
