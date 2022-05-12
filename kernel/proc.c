@@ -20,6 +20,7 @@ struct spinlock pid_lock;
 
 extern void forkret(void);
 static void freeproc(struct proc *p);
+
 int removeFirst(int *list, struct spinlock head_lock);
 
 extern char trampoline[]; // trampoline.S
@@ -145,6 +146,14 @@ void addLink(int *first_ind, int to_add, struct spinlock head_lock){
   int temp_ind = *first_ind;
   // Handle case of empty list (index=-1).
 
+  if (*first_ind == -1){
+    *first_ind = to_add;
+    release_lock(to_add);
+    release(&head_lock);
+    return;
+  }
+
+  /*
   if (!cas(first_ind, -1, to_add)){
     // Succeeded to replace -1 with 'to_add', which is the new head of the list.
     release_lock(to_add);
@@ -152,6 +161,7 @@ void addLink(int *first_ind, int to_add, struct spinlock head_lock){
     release(&head_lock);
     return;
   }
+*/
 
   // If got here -> List is not empty, head is still locked (dummy).
   // Acquire first lock
@@ -290,7 +300,7 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   }
 
   // Release the head-lock. The first link is already held, so no problem letting it go.
-  release(&head_lock);
+  // release(&head_lock);
 
   // Component to remove is not the first node.
   int prev = *first_p;
@@ -308,6 +318,11 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
       release_lock(prev);
       // printf("Releasing %d\n", curr);
       release_lock(curr);
+
+      //Temp, delete this:
+      release(&head_lock);
+
+
       return 1;
     }
     // printf("Releasing %d\n", prev);
@@ -317,6 +332,11 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   }
   // printf("Releasing %d\n", prev);
   release_lock(prev);
+
+  //Temp, delete this:
+  release(&head_lock);
+
+
   return -1;                        // Node to remove not found (it's index).
 }
 
