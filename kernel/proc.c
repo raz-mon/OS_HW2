@@ -914,7 +914,7 @@ scheduler(void)
 // Wsl2 - Check it out.
 
 #ifdef ON
-  int stealed_ind;
+  // int stealed_ind;
   int ind;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
@@ -937,7 +937,6 @@ scheduler(void)
     }
     /*
     else{                         // Steal a process from another cpu.
-      // cpu_id = steal_procces();
       stealed_ind = steal_process();
       if (stealed_ind != -1){           // Managed to steal a process ;)
         p = &proc[stealed_ind];
