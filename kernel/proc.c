@@ -102,7 +102,7 @@ find_least_used_cpu(void){
   int found = 0;
   uint64 min_process_count = 1844674407370955564;      // Initialized to maximum of uint64;
   for (struct cpu *c1 = cpus; c1 < &cpus[num_cpus]; c1++){
-    if ((c1->process_count < min_process_count) && c1 != mycpu()){
+    if ((c1->process_count < min_process_count)){
       found = 1;      // Set found to true.
       winner = c1;
       min_process_count = c1->process_count;
@@ -124,6 +124,8 @@ steal_process(void){
   // in the calling function). OR NOT. Can change this to perform all relevant procedures (sounds good!).
   int out;
   for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
+    if (cp == mycpu())
+      continue;
     out = removeFirst(&cp->first, cp->head_lock);
     if (out != -1)    // Managed to steal a link from the linked list.
       return out;
