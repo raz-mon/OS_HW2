@@ -905,7 +905,7 @@ scheduler(void)
 // Wsl2 - Check it out.
 
 #ifdef ON
-  int stealed_ind;
+  // int stealed_ind;
   int ind;
   for(;;){
     // Avoid deadlock by ensuring that devices can interrupt.
