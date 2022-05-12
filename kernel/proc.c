@@ -129,11 +129,7 @@ steal_process(void){
 void addLink(int *first_ind, int to_add, struct spinlock head_lock){
   // Get dummy-head of the list pointed at by 'first_ind'.
   acquire(&head_lock);
-  
-  // while(cas(head_lock, 0, 1))       // Busy-wait until the head is clear (not supposed to be long).
-  //   ;;
-   
-   
+
   // Taking the lock of the added process.
   get_lock(to_add);
   int temp_ind = *first_ind;
@@ -146,16 +142,6 @@ void addLink(int *first_ind, int to_add, struct spinlock head_lock){
     return;
   }
 
-  /*
-  if (!cas(first_ind, -1, to_add)){
-    // Succeeded to replace -1 with 'to_add', which is the new head of the list.
-    release_lock(to_add);
-    // Release dummy-head here.
-    release(&head_lock);
-    return;
-  }
-*/
-
   // If got here -> List is not empty, head is still locked (dummy).
   // Acquire first lock
   // printf("Taking %d\n", temp_ind);
@@ -163,10 +149,9 @@ void addLink(int *first_ind, int to_add, struct spinlock head_lock){
   // Release 'dummy-head' here.
   release(&head_lock);
 
-  // while (cas(head_lock, 1, 0))
-  //   printf("Wierd problem2!\n");
+  // Maybe add here another check if next link is not -1, and if so take it's list-lock and only then release head-lock?
 
-  int next_ind = proc[temp_ind].next;
+  int next_ind = proc[temp_ind].next;         // Equivalent to getNext(temp_ind);
   while (next_ind != -1){
     // printf("Taking %d\n", next_ind);
     get_lock(next_ind);
@@ -926,7 +911,7 @@ scheduler(void)
         release(&p->lock);
       }
     }
-    /*
+    // /*
     // Steal another process from another cpu.
       stealed_ind = steal_process();
       if (stealed_ind != -1){           // Managed to steal a process ;)
