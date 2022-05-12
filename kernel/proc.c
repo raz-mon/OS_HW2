@@ -268,7 +268,6 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
       // Release the head-lock. The first link is already held, so no problem letting it go.
       release(&head_lock);
 
-
       return 1;
     }
     else{                               // List of more than one element.
@@ -285,7 +284,6 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
 
         // Release the head-lock. The first link is already held, so no problem letting it go.
         release(&head_lock);
-
 
         return 1;
     }
@@ -886,13 +884,7 @@ scheduler(void)
     intr_on();
     while (c->first != -1)       // Ready list of the cpu not empty.
     {
-      ind = removeFirst(&c->first, c->head_lock);
-
-
-      if (proc[ind].state == ZOMBIE)
-        printf("Added a zombie!!\n");
-      
-      
+      ind = removeFirst(&c->first, c->head_lock);      
       p = &(proc[ind]);
       acquire(&p->lock);
       p->state = RUNNING;
@@ -916,8 +908,6 @@ scheduler(void)
     // if (c->first != -1)
     {
       ind = removeFirst(&c->first, c->head_lock);
-      if (proc[ind].state == ZOMBIE)
-        printf("Added a zombie!!\n");
       if (ind != -1){           // No-one stole the only process in the list (if there was one..).
         p = &(proc[ind]);
         acquire(&p->lock);
@@ -1034,16 +1024,16 @@ sleep(void *chan, struct spinlock *lk)
 
   acquire(&p->lock);  //DOC: sleeplock1
 
-  // Added
-  // add p to the sleeping list
-  addLink(&sleeping, p->ind, sleeping_head_lock);
-  // End of addition.
 
   release(lk);
   // Go to sleep.
   p->chan = chan;
   p->state = SLEEPING;
 
+  // Added
+  // add p to the sleeping list
+  addLink(&sleeping, p->ind, sleeping_head_lock);
+  // End of addition.
 
   sched();
 
