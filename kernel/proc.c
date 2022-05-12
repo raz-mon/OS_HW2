@@ -935,7 +935,7 @@ scheduler(void)
         release(&p->lock);
       }
     }
-    
+    /*
     else{                         // Steal a process from another cpu.
       stealed_ind = steal_process();
       if (stealed_ind != -1){           // Managed to steal a process ;)
@@ -954,7 +954,7 @@ scheduler(void)
         release(&p->lock);
       }
     }
-    
+    */
   }
 #endif 
 }
