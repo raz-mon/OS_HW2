@@ -875,6 +875,12 @@ scheduler(void)
     while (c->first != -1)       // Ready list of the cpu not empty.
     {
       ind = removeFirst(&c->first, c->head_lock);
+
+
+      if (proc[ind].state == ZOMBIE)
+        printf("Added a zombie!!\n");
+      
+      
       p = &(proc[ind]);
       acquire(&p->lock);
       p->state = RUNNING;
