@@ -2819,7 +2819,7 @@ main(int argc, char *argv[])
     char *s;
   } tests[] = {
     {MAXVAplus, "MAXVAplus"},
-    // {manywrites, "manywrites"},
+    {manywrites, "manywrites"},
     {execout, "execout"},
     {copyin, "copyin"},
     {copyout, "copyout"},
@@ -2833,7 +2833,7 @@ main(int argc, char *argv[])
     {reparent2, "reparent2"},
     {pgbug, "pgbug" },
     {sbrkbugs, "sbrkbugs" },
-    // {badwrite, "badwrite" },
+    {badwrite, "badwrite" },
     {badarg, "badarg" },
     {reparent, "reparent" },
     {twochildren, "twochildren"},
