@@ -26,7 +26,8 @@ acquire(struct spinlock *lk)
     // Added:
     // printf("Panicking on process %d", myproc()->ind);
     // End of addition.
-    panic("acquire");
+    // panic("acquire");
+    panic(lk->name);
   }
 
   // On RISC-V, sync_lock_test_and_set turns into an atomic swap:
