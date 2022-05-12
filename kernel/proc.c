@@ -124,7 +124,7 @@ steal_process(void){
   // in the calling function). OR NOT. Can change this to perform all relevant procedures (sounds good!).
   int out;
   for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
-    if (cp == mycpu())
+    if (cp == mycpu())    // Don't steal from yourself..
       continue;
     out = removeFirst(&cp->first, cp->head_lock);
     if (out != -1)    // Managed to steal a link from the linked list.
@@ -142,7 +142,7 @@ void addLink(int *first_ind, int to_add, struct spinlock head_lock){
   // while(cas(head_lock, 0, 1))       // Busy-wait until the head is clear (not supposed to be long).
   //   ;;
   
-  
+   
   // Taking the lock of the added process.
   get_lock(to_add);
   int temp_ind = *first_ind;
