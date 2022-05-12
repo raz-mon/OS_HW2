@@ -2830,7 +2830,7 @@ main(int argc, char *argv[])
     {truncate1, "truncate1"},
     {truncate2, "truncate2"},
     {truncate3, "truncate3"},
-    // {reparent2, "reparent2"},
+    {reparent2, "reparent2"},
     {pgbug, "pgbug" },
     {sbrkbugs, "sbrkbugs" },
     {badwrite, "badwrite" },
