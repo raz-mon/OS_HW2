@@ -300,7 +300,7 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   }
 
   // Release the head-lock. The first link is already held, so no problem letting it go.
-  release(&head_lock);
+  // release(&head_lock);
 
   // Component to remove is not the first node.
   int prev = *first_p;
@@ -319,6 +319,9 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
       // printf("Releasing %d\n", curr);
       release_lock(curr);
 
+      // Temp: Delete this.
+      release(&head_lock);
+
       return 1;
     }
     // printf("Releasing %d\n", prev);
@@ -328,6 +331,9 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   }
   // printf("Releasing %d\n", prev);
   release_lock(prev);
+
+  // Temp: Delete this.
+  release(&head_lock);
 
   return -1;                        // Node to remove not found (it's index).
 }
