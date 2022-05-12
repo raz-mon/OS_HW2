@@ -785,7 +785,7 @@ exit(int status)
   // add p to the zombie list
   addLink(&zombie, p->ind, zombie_head_lock);
   // End of addition.
-  
+
   release(&wait_lock);
   
 
@@ -887,7 +887,7 @@ scheduler(void)
   }
 #endif
 // Wsl2 - Check it out.
- // IF BLNCFLG=ON:
+
 #ifdef ON
   int stealed_ind;
   int ind;
@@ -898,6 +898,8 @@ scheduler(void)
     // if (c->first != -1)
     {
       ind = removeFirst(&c->first, c->head_lock);
+      if (proc[ind].state == ZOMBIE)
+        printf("Added a zombie!!\n");
       if (ind != -1){           // No-one stole the only process in the list (if there was one..).
         p = &(proc[ind]);
         acquire(&p->lock);

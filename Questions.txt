@@ -6,6 +6,7 @@
 
 - In the original scheduler - why is there 'interon()' after each 'epoch' (i.e., after we go over whole proc array)???
 
+- Who exactly is the 'waitlock' in exit (appears in more places)?
 
 
 Todo:
