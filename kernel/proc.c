@@ -6,7 +6,6 @@
 #include "proc.h"
 #include "defs.h"
 
-// Added (should this be here, or better in defs for example?):
 #define NULL 0
 
 struct cpu cpus[NCPU];
@@ -86,14 +85,6 @@ void increase_cpu_counter(struct cpu *c){
   do{
     old = c->process_count;
   } while (cas(&c->process_count, old, old+1));
-}
-
-void decreace_cpu_counter(int cpu_index){
-  int old;
-  do{
-    old = cpus[cpu_index].process_count;
-    if(old < 1){ break;}   // Can't be under 0.
-  } while (cas(&cpus[cpu_index].process_count, old, old - 1));
 }
 
 struct cpu*
@@ -936,7 +927,7 @@ scheduler(void)
       }
     }
     // /*
-    // else{                         // Steal a process from another cpu.
+    // Steal another process from another cpu.
       stealed_ind = steal_process();
       if (stealed_ind != -1){           // Managed to steal a process ;)
         p = &proc[stealed_ind];
@@ -953,10 +944,10 @@ scheduler(void)
         c->proc = 0;
         release(&p->lock);
       }
-    // }
     // */
   }
 #endif 
+
 }
 
 // Switch to scheduler.  Must hold only p->lock

@@ -12,6 +12,7 @@
 Todo:
 
 - Change wakeup - to iterate over the sleeping list!! See assignment specification!
+    This is part of the assignment.
 
 - Add balancing optimization to kill also (AS WAKEUP, add it to the proper list in each of the states of BLNCFLG).
 
