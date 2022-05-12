@@ -102,7 +102,7 @@ find_least_used_cpu(void){
   int found = 0;
   uint64 min_process_count = 1844674407370955564;      // Initialized to maximum of uint64;
   for (struct cpu *c1 = cpus; c1 < &cpus[num_cpus]; c1++){
-    if (c1->process_count < min_process_count){
+    if ((c1->process_count < min_process_count) && c1 != mycpu()){
       found = 1;      // Set found to true.
       winner = c1;
       min_process_count = c1->process_count;
