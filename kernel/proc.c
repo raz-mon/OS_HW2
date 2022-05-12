@@ -335,15 +335,17 @@ int search_list(int *first_p, int search_for, struct spinlock head_lock){
   int curr = *first_p;
   get_lock(curr);
   if (curr == search_for){
-    release
+    release(curr);
+    release(&head_lock);
+    return 
   }
   int next = getNext(curr);
   while (next != -1){
 
   }
 
-}
-*/
+}*/
+
 
 // Print the linked-list, pointed at by first. Used for debugging purposses.
 void printList(int *first){
@@ -556,7 +558,7 @@ freeproc(struct proc *p)
   // Added
   // Remove from ZOMBIE list
   if (remove(&zombie, p->ind, zombie_head_lock) == -1)
-    printf("Zombie proc not found (not necessarily a problem..\n");
+    printf("Zombie proc not found (not necessarily a problem..).\n");
   // Add to UNUSED list
   p->state = UNUSED;
   addLink(&unused, p->ind, unused_head_lock);
@@ -922,7 +924,6 @@ scheduler(void)
     }
     /*
     else{                         // Steal a process from another cpu.
-    */
       // cpu_id = steal_procces();
       stealed_ind = steal_process();
       if (stealed_ind != -1){           // Managed to steal a process ;)
@@ -940,6 +941,7 @@ scheduler(void)
         c->proc = 0;
         release(&p->lock);
       }
+    */
     // }
   }
 #endif 
@@ -1024,7 +1026,6 @@ sleep(void *chan, struct spinlock *lk)
 
   acquire(&p->lock);  //DOC: sleeplock1
 
-
   release(lk);
   // Go to sleep.
   p->chan = chan;
@@ -1052,6 +1053,45 @@ void
 wakeup(void *chan)
 {
   struct proc *p;
+
+
+/*
+  int first = sleeping
+
+  int curr = sleeping;
+  int next = getNext(curr);
+  while (curr != -1){
+    p = &proc[curr];
+    curr = getNext(curr);
+    if (p->chan == chan){
+      p->state = RUNNABLE;
+        //Added
+        // remove p from sleeping
+      if (remove(&sleeping, p->ind, sleeping_head_lock) != -1){
+
+        #ifdef OFF
+        addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);
+        increase_cpu_counter(&cpus[p->cpu_num]);
+        #endif
+
+        #ifdef ON
+        struct cpu *winner;
+        // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
+        winner = find_least_used_cpu();
+        // Add the process to the cpu with the lowest process_count, and increase its process_count.
+        addLink(&winner->first, p->ind, winner->head_lock);
+        // Old line (bug I think)
+        // addLink(&winner->first, p->ind, cpus[p->cpu_num].head_lock);
+        increase_cpu_counter(winner);
+        #endif
+
+      }
+      // else{
+      //   printf("Sleeping process not found in sleeping (Someone else took it?)\n");
+      // }
+    }
+  }
+*/
 
   for(p = proc; p < &proc[NPROC]; p++) {
     if(p != myproc()){
@@ -1086,6 +1126,8 @@ wakeup(void *chan)
       release(&p->lock);
     }
   }
+
+
 }
  
 // Kill the process with the given pid.
