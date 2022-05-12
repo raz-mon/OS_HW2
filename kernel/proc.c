@@ -337,7 +337,7 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
 
   return -1;                        // Node to remove not found (it's index).
 }
-
+ 
 /*
 // Search the list pointed at by first_p for the index search_for, return the index of the process if found, -1 otherwise
 int search_list(int *first_p, int search_for, struct spinlock head_lock){
