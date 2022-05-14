@@ -1011,13 +1011,14 @@ sleep(void *chan, struct spinlock *lk)
   // (wakeup locks p->lock),
   // so it's okay to release lk.
 
+
+  acquire(&p->lock);  //DOC: sleeplock1
+
   // Added
   // add p to the sleeping list
   addLink(&sleeping, p->ind, sleeping_head_lock);
   // End of addition.
-
-  acquire(&p->lock);  //DOC: sleeplock1
-
+  
   release(lk);
   // Go to sleep.
   p->chan = chan;
@@ -1050,13 +1051,6 @@ wakeup(void *chan)
   what happens next, since the process with go to exit (--> ZOMBIE) shortly.
 */
 
-  // acquire(&sleeping_head_lock);
-  // int next;
-
-
-  // Non-empty list
-  // get_lock(curr);
-  // release(&sleeping_head_lock);     // Can delay this a little for EXTRA safety if you want (I don't think it's needed).
   
   int curr = sleeping;
 
