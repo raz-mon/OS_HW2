@@ -11,9 +11,15 @@
 
 Todo:
 
-- Change wakeup - to iterate over the sleeping list!! See assignment specification!
-    This is part of the assignment.
 
 
+
+Lock ordering:
+    Currently, I take the p->lock first, and then any cpu.head_lock or other list lock in MOST CASES.
+    Problematic places:
+        - Scheduler is the opposite.
+        - allocproc (but this is not a problem, since we are dealing with the unused list, so nobody should be holding 
+          the process lock).
+        - 
 
 
