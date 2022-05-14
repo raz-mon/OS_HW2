@@ -2838,7 +2838,7 @@ main(int argc, char *argv[])
     {reparent, "reparent" },
     {twochildren, "twochildren"},
     {forkfork, "forkfork"},
-    {forkforkfork, "forkforkfork"},
+    // {forkforkfork, "forkforkfork"},
     {argptest, "argptest"},
     {createdelete, "createdelete"},
     {linkunlink, "linkunlink"},
