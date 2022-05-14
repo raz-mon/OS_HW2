@@ -2879,7 +2879,7 @@ main(int argc, char *argv[])
     {bigfile, "bigfile"},
     {dirfile, "dirfile"},
     {iref, "iref"},
-    {forktest, "forktest"},
+    // {forktest, "forktest"},
     {bigdir, "bigdir"}, // slow
     { 0, 0},
   };
