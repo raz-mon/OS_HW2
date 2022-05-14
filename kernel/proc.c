@@ -736,7 +736,7 @@ reparent(struct proc *p)
   for(pp = proc; pp < &proc[NPROC]; pp++){
     if(pp->parent == p){
       pp->parent = initproc;
-      wakeup(initproc);
+      wakeup(initproc);                         // waitlock is held here.
       return;
     }
   }
@@ -773,7 +773,7 @@ exit(int status)
   reparent(p);
 
   // Parent might be sleeping in wait().
-  wakeup(p->parent);
+  wakeup(p->parent);                            // waitlock is held here too.
   
   acquire(&p->lock);
 
@@ -1011,6 +1011,10 @@ sleep(void *chan, struct spinlock *lk)
   // (wakeup locks p->lock),
   // so it's okay to release lk.
 
+  // Added
+  // add p to the sleeping list
+  addLink(&sleeping, p->ind, sleeping_head_lock);
+  // End of addition.
 
   acquire(&p->lock);  //DOC: sleeplock1
 
@@ -1019,10 +1023,6 @@ sleep(void *chan, struct spinlock *lk)
   p->chan = chan;
   p->state = SLEEPING;
 
-  // Added
-  // add p to the sleeping list
-  addLink(&sleeping, p->ind, sleeping_head_lock);
-  // End of addition.
 
   sched();
 
@@ -1042,44 +1042,34 @@ wakeup(void *chan)
 {
   struct proc *p;
 
-
 /*
-  int first = sleeping
+  Important clarifying note: Wakeup is called ONLY when wait_lock is held!! This means that FOR SURE no more than one process
+  is performing this function (all a critical section in our case).
+  This means that there is no problem traversing the sleeping list without 'special' synchronization!
+  ** The only other place processes are removed from the sleeping list - is in kill - where we really don't care about 
+  what happens next, since the process with go to exit (--> ZOMBIE) shortly.
+*/
 
+  acquire(&sleeping_head_lock);
   int curr = sleeping;
-  int next = getNext(curr);
+
+  // Empty list
+  if (curr == -1){
+    release(&sleeping_head_lock);
+    return;
+  }
+
+  // Non-empty list
+  get_lock(curr);
+  release(&sleeping_head_lock);     // Can delay this a little for EXTRA safety if you want (I don't think it's needed).
+
   while (curr != -1){
     p = &proc[curr];
-    curr = getNext(curr);
-    if (p->chan == chan){
-      p->state = RUNNABLE;
-        //Added
-        // remove p from sleeping
-      if (remove(&sleeping, p->ind, sleeping_head_lock) != -1){
 
-        #ifdef OFF
-        addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);
-        increase_cpu_counter(&cpus[p->cpu_num]);
-        #endif
+  } 
 
-        #ifdef ON
-        struct cpu *winner;
-        // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
-        winner = find_least_used_cpu();
-        // Add the process to the cpu with the lowest process_count, and increase its process_count.
-        addLink(&winner->first, p->ind, winner->head_lock);
-        // Old line (bug I think)
-        // addLink(&winner->first, p->ind, cpus[p->cpu_num].head_lock);
-        increase_cpu_counter(winner);
-        #endif
 
-      }
-      // else{
-      //   printf("Sleeping process not found in sleeping (Someone else took it?)\n");
-      // }
-    }
-  }
-*/
+
 
   for(p = proc; p < &proc[NPROC]; p++) {
     if(p != myproc()){
