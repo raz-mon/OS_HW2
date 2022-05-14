@@ -1052,6 +1052,7 @@ wakeup(void *chan)
 
   acquire(&sleeping_head_lock);
   int curr = sleeping;
+  int next;
 
   // Empty list
   if (curr == -1){
@@ -1060,15 +1061,15 @@ wakeup(void *chan)
   }
 
   // Non-empty list
-  get_lock(curr);
+  // get_lock(curr);
   release(&sleeping_head_lock);     // Can delay this a little for EXTRA safety if you want (I don't think it's needed).
 
   while (curr != -1){
     p = &proc[curr];
     if (p != myproc()){
-      acquire(&p->lock);
+      // acquire(&p->lock);
       if (p->state == SLEEPING && p->chan == chan){
-        release_lock(curr);     // No problem doing this now, no-one can touch curr!
+        // release_lock(curr);     // No problem doing this now, no-one can touch curr!
         if (remove(&sleeping, p->ind, sleeping_head_lock) != -1){
           
           p->state = RUNNABLE;
@@ -1092,8 +1093,13 @@ wakeup(void *chan)
         else{
           printf("Problem 3!@#$!#$\n");
         }
-        
       }
+      release(&p->lock);
+      curr = getNext(curr);
+    }
+    else{
+      release(&p->lock);
+      curr = getNext(curr);
     }
   } 
 
@@ -1149,6 +1155,13 @@ kill(int pid)
     acquire(&p->lock);
     if(p->pid == pid){
       p->killed = 1;
+
+
+
+      // Maybe hold wait_lock here, so there will be no race conditions with sleep??
+    
+    
+    
       if(p->state == SLEEPING){
         // Wake process from sleep().
         p->state = RUNNABLE;
