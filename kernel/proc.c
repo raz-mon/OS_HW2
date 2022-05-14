@@ -1066,6 +1066,7 @@ wakeup(void *chan)
 
   while (curr != -1){
     p = &proc[curr];
+    acquire(&p->lock);
     if (p != myproc()){
       // acquire(&p->lock);
       if (p->state == SLEEPING && p->chan == chan){
