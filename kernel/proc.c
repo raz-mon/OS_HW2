@@ -1052,7 +1052,7 @@ wakeup(void *chan)
 
   acquire(&sleeping_head_lock);
   int curr = sleeping;
-  int next;
+  // int next;
 
   // Empty list
   if (curr == -1){
