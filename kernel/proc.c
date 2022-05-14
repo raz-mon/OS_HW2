@@ -1050,23 +1050,23 @@ wakeup(void *chan)
   what happens next, since the process with go to exit (--> ZOMBIE) shortly.
 */
 
-  acquire(&sleeping_head_lock);
-  int curr = sleeping;
+  // acquire(&sleeping_head_lock);
+  // int curr = sleeping;
 
-  // Empty list
-  if (curr == -1){
-    release(&sleeping_head_lock);
-    return;
-  }
+  // // Empty list
+  // if (curr == -1){
+  //   release(&sleeping_head_lock);
+  //   return;
+  // }
 
-  // Non-empty list
-  get_lock(curr);
-  release(&sleeping_head_lock);     // Can delay this a little for EXTRA safety if you want (I don't think it's needed).
+  // // Non-empty list
+  // get_lock(curr);
+  // release(&sleeping_head_lock);     // Can delay this a little for EXTRA safety if you want (I don't think it's needed).
 
-  while (curr != -1){
-    p = &proc[curr];
+  // while (curr != -1){
+  //   p = &proc[curr];
 
-  } 
+  // } 
 
 
 
