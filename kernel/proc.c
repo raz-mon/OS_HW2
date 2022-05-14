@@ -1166,7 +1166,6 @@ kill(int pid)
       if(p->state == SLEEPING){
         // Wake process from sleep().
         p->state = RUNNABLE;
-        // Added (Should we also use ifdef here to perform optimization? I think so.)
         if (remove(&sleeping, p->ind, sleeping_head_lock) != -1)
           addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);
         else
