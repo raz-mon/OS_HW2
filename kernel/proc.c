@@ -820,13 +820,12 @@ scheduler(void)
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
     while (c->first != -1)       // Ready list of the cpu not empty.
-    // if (c->first != -1)
     {
       ind = removeFirst(&c->first, c->head_lock);
       if (ind != -1){           // No-one stole the only process in the list (if there was one..).
         p = &(proc[ind]);
         acquire(&p->lock);
-        if (p->state == ZOMBIE) 
+        if (p->state != RUNNABLE) 
           panic("Running a zombie!!!\n");
         p->state = RUNNING;
         c->proc = p;
@@ -837,7 +836,7 @@ scheduler(void)
         release(&p->lock);
       }
     }
-    /*    Bonus section
+    /*    Bonus section - Steal
     // Steal another process from another cpu.
       stealed_ind = steal_process();
       if (stealed_ind != -1){           // Managed to steal a process ;)
