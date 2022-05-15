@@ -53,19 +53,6 @@ struct spinlock unused_head_lock;
 
 int num_cpus = CPUS;
 
-
-/*
-// Nice pattern for concurrent programming with cas.
-public void add(T obj) {
-  Link<T> oldVal;
-  Link<T> newVal;
-  do {
-    oldVal = head.get();
-    newVal = new Link<T>(obj,oldVal);
-  } while (!head.cas(oldVal,newVal));
-}
-*/
-
 // Get next process index (next link in linked-list).
 // Notice that you must lock the process before calling, and release afterwards.
 int getNext(int ind){
@@ -111,8 +98,7 @@ find_least_used_cpu(void){
 int 
 steal_process(void){
   // Traverse the cpus array (array of cpus), until finding one with a non-empty ready-list.
-  // Then, steal that process by removing it from it's ready-list, and changing it's cpu_num to -1 (will be changed to the right cpu
-  // in the calling function). OR NOT. Can change this to perform all relevant procedures (sounds good!).
+  // Then, steal that process by removing it from it's ready-list (its will be changed to the right cpu in the calling function).
   int out;
   for (struct cpu *cp = cpus; cp < &cpus[num_cpus]; cp++){
     if (cp == mycpu())    // Don't steal from yourself..
@@ -133,8 +119,8 @@ void addLink(int *first_ind, int to_add, struct spinlock head_lock){
   // Taking the lock of the added process.
   get_lock(to_add);
   int temp_ind = *first_ind;
-  // Handle case of empty list (index=-1).
 
+  // Handle case of empty list (index=-1).
   if (*first_ind == -1){
     *first_ind = to_add;
     release_lock(to_add);
@@ -250,7 +236,6 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
   while (curr != -1){
     get_lock(curr);                     // Lock "current" node (process).
     if (curr == ind){
-
       // Delete node from list.
       proc[prev].next = proc[curr].next;
       proc[curr].next = -1;
@@ -263,7 +248,6 @@ int remove(int *first_p, int ind, struct spinlock head_lock){
     curr = getNext(curr);
   }
   release_lock(prev);
-
   return -1;                        // Node to remove not found (it's index).
 }
 
@@ -309,7 +293,7 @@ proc_mapstacks(pagetable_t kpgtbl) {
 void
 procinit(void)
 {
-  printf("number of cpus running: : %d\n", num_cpus);
+  printf("number of cpus running: %d\n", num_cpus);
 
   // Initialize cpus 'special' fields.
   int j = 0;
@@ -348,8 +332,6 @@ procinit(void)
       i++;
       addLink(&unused, p->ind, unused_head_lock);      // Add link to the unused list, if this is not the init proc which is used.
   }
-  // printf("unused list: \n");
-  // printList(&unused);
 }
 
 // Must be called with interrupts disabled,
@@ -389,16 +371,6 @@ allocpid() {
     old = nextpid;
   } while (cas(&nextpid, old, old+1));
   return old;
-
-/*
-  // old implementation (using pidlock).
-  int pid;
-  acquire(&pid_lock);
-  pid = nextpid;
-  nextpid = nextpid + 1;
-  release(&pid_lock);
-  return pid;
-*/
 }
 
 // Look in the process table for an UNUSED proc.
@@ -629,8 +601,8 @@ fork(void)
 
   acquire(&np->lock);
   np->state = RUNNABLE;
-  //Added
 
+  //Added
   #ifdef OFF
     np->cpu_num = p->cpu_num;                     // Same cpu-num as the father process.
     addLink(&cpus[np->cpu_num].first, np->ind, cpus[np->cpu_num].head_lock);   // Adding process link to the father linked-list (after changing to RUNNABLE).
@@ -710,7 +682,6 @@ exit(int status)
   // End of addition.
 
   release(&wait_lock);
-  
 
   // Jump into the scheduler, never to return.
   sched();
@@ -780,14 +751,6 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
-  /*
-  if (cpuid() != 0){
-    // c->first = -1;              // Initialize 'first' field of other cpus (0 was initialized in procinit).
-    // c->process_count = 0;       // Initialize 'process_count' of other cpus (0 was initialized in procinit).
-    // c->cpu_id = cpuid();        // Initialize cpu_id of other cpus (0 was initialized in procinit).
-  }
-  */
 
  // IF BLNCFLG=OFF:
 #ifdef OFF
@@ -811,7 +774,6 @@ scheduler(void)
     }
   }
 #endif
-// Wsl2 - Check it out.
 
 #ifdef ON
   // int stealed_ind;
@@ -826,7 +788,7 @@ scheduler(void)
         p = &(proc[ind]);
         acquire(&p->lock);
         if (p->state != RUNNABLE) 
-          panic("Running a zombie!!!\n");
+          panic("Running a process that is not runnable!!!! Process index: %d\n", p->ind);
         p->state = RUNNING;
         c->proc = p;
         swtch(&c->context, &p->context);
@@ -1017,44 +979,6 @@ wakeup(void *chan)
       curr = getNext(curr);
     }
   } 
-
-
-/*
-  for(p = proc; p < &proc[NPROC]; p++) {
-    if(p != myproc()){
-      acquire(&p->lock);
-      if(p->state == SLEEPING && p->chan == chan) {
-        p->state = RUNNABLE;
-        //Added
-        // remove p from sleeping
-        if (remove(&sleeping, p->ind, sleeping_head_lock) != -1){
-
-          #ifdef OFF
-          addLink(&cpus[p->cpu_num].first, p->ind, cpus[p->cpu_num].head_lock);
-          increase_cpu_counter(&cpus[p->cpu_num]);
-          #endif
-
-          #ifdef ON
-          struct cpu *winner;
-          // add p to the ready-list (runnable-list) of the cpu with the lowest process_count.
-          winner = find_least_used_cpu();
-          // Add the process to the cpu with the lowest process_count, and increase its process_count.
-          addLink(&winner->first, p->ind, winner->head_lock);
-          // Old line (bug I think)
-          // addLink(&winner->first, p->ind, cpus[p->cpu_num].head_lock);
-          increase_cpu_counter(winner);
-          #endif
-  
-        }
-        else{
-          printf("Problem!@#$ Sleeping process not found in sleeping (Someone else took it?)\n");
-        }
-      }
-      release(&p->lock);
-    }
-  }
-*/
-
 }
  
 // Kill the process with the given pid.
@@ -1069,13 +993,6 @@ kill(int pid)
     acquire(&p->lock);
     if(p->pid == pid){
       p->killed = 1;
-
-
-
-      // Maybe hold wait_lock here, so there will be no race conditions with sleep??
-    
-    
-    
       if(p->state == SLEEPING){
         // Wake process from sleep().
         p->state = RUNNABLE;

@@ -1,23 +1,23 @@
 Questions:
+  - In the original scheduler - why is there 'interon()' after each 'epoch' (i.e., after we go over whole proc array)???
 
-- In the original scheduler - why is there 'interon()' after each 'epoch' (i.e., after we go over whole proc array)???
+
+  - Where is the 'state' field of each process changed to 'unused' in the beginning of the execution?
+      Can't find it.
 
 
-- Where is the 'state' field of each process changed to 'unused' in the beginning of the execution?
-    Can't find it.
+Notes:
+  - Wsl2 - Check it out.
+
 
 Todo:
-
-
-
-
-Lock ordering:
-    Currently, I take the p->lock first, and then any cpu.head_lock or other list lock in MOST CASES.
-    Problematic places:
-        - Scheduler is the opposite (this should not be a problem - since we are dealing with the cpu's ready-list, which
-          should be traversed only by this cpu (no access to other cpus!)).
-        - allocproc (but this is not a problem, since we are dealing with the unused list, so nobody should be holding 
-          the process lock).
-    So seems like no problem :)
+  - Lock ordering:
+      Currently, I take the p->lock first, and then any cpu.head_lock or other list lock in MOST CASES.
+      Problematic places:
+          - Scheduler is the opposite (this should not be a problem - since we are dealing with the cpu's ready-list, which
+            should be traversed only by this cpu (no access to other cpus!)).
+          - allocproc (but this is not a problem, since we are dealing with the unused list, so nobody should be holding 
+            the process lock).
+      So seems like no problem :)
 
 
