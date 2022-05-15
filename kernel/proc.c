@@ -788,7 +788,7 @@ scheduler(void)
         p = &(proc[ind]);
         acquire(&p->lock);
         if (p->state != RUNNABLE) 
-          panic("Running a process that is not runnable!!!! Process index: %d\n", p->ind);
+          panic("Running a process that is not runnable!!!! \n");
         p->state = RUNNING;
         c->proc = p;
         swtch(&c->context, &p->context);

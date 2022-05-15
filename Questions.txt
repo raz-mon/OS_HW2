@@ -8,9 +8,6 @@ Questions:
 
 Notes:
   - Wsl2 - Check it out.
-
-
-Todo:
   - Lock ordering:
       Currently, I take the p->lock first, and then any cpu.head_lock or other list lock in MOST CASES.
       Problematic places:
@@ -19,5 +16,20 @@ Todo:
           - allocproc (but this is not a problem, since we are dealing with the unused list, so nobody should be holding 
             the process lock).
       So seems like no problem :)
+
+
+Todo:
+  - See that all is good in case of BLNCFLG=OFF --> See all is good with BLNCFLG=ON (Run tests, and then run separately reparent, reparent2)
+    --> Make patch file, and submit it to moodle according to assignment specifications (see assignment).
+
+
+
+
+
+
+
+
+
+
 
 
