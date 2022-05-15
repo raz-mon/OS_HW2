@@ -976,7 +976,6 @@ wakeup(void *chan)
   ** The only other place processes are removed from the sleeping list - is in kill - where we really don't care about 
   what happens next, since the process with go to exit (--> ZOMBIE) shortly.
 */
-
   
   int curr = sleeping;
 
@@ -1019,7 +1018,6 @@ wakeup(void *chan)
       curr = getNext(curr);
     }
   } 
-
 
 
 /*

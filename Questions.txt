@@ -1,13 +1,10 @@
-- Where is the 'state' field of each process changed to 'unused' in the beginning of the execution?
-    Can't find it.
-
-- How can I get the number of cpus?
-    Or can I assume that they are as NCPU?
+Questions:
 
 - In the original scheduler - why is there 'interon()' after each 'epoch' (i.e., after we go over whole proc array)???
 
-- Who exactly is the 'waitlock' in exit (appears in more places)?
 
+- Where is the 'state' field of each process changed to 'unused' in the beginning of the execution?
+    Can't find it.
 
 Todo:
 
