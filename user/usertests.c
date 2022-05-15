@@ -2830,12 +2830,12 @@ main(int argc, char *argv[])
     {truncate1, "truncate1"},
     {truncate2, "truncate2"},
     {truncate3, "truncate3"},
-    {reparent2, "reparent2"},
+    // {reparent2, "reparent2"},
     {pgbug, "pgbug" },
     {sbrkbugs, "sbrkbugs" },
     {badwrite, "badwrite" },
     {badarg, "badarg" },
-    {reparent, "reparent" },
+    // {reparent, "reparent" },
     {twochildren, "twochildren"},
     {forkfork, "forkfork"},
     // {forkforkfork, "forkforkfork"},
@@ -2880,7 +2880,7 @@ main(int argc, char *argv[])
     {dirfile, "dirfile"},
     {iref, "iref"},
     // {forktest, "forktest"},
-    {bigdir, "bigdir"}, // slow
+    // {bigdir, "bigdir"}, // slow
     { 0, 0},
   };
 
