@@ -111,7 +111,6 @@ steal_process(void){
 }
 
 // Add a link to a "linked-list" to the END of a linked-list.
-// If successful, return the added index ("link"). Else --> Return -1.
 void addLink(int *first_ind, int to_add, struct spinlock head_lock){
   // Get dummy-head of the list pointed at by 'first_ind'.
   acquire(&head_lock);

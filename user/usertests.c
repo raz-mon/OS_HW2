@@ -907,8 +907,10 @@ reparent(char *s)
       exit(1);
     }
     if(pid){
-      if(wait(0) != pid){
+      int new_pid = wait(0);
+      if(new_pid != pid){
         printf("%s: wait wrong pid\n", s);
+        printf("pid: %d, wait ret: %d", pid, new_pid);
         exit(1);
       }
     } else {
