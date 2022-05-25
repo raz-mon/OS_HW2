@@ -910,7 +910,7 @@ reparent(char *s)
       int new_pid = wait(0);
       if(new_pid != pid){
         printf("%s: wait wrong pid\n", s);
-        printf("pid: %d, wait ret: %d", pid, new_pid);
+        // printf("pid: %d, wait ret: %d", pid, new_pid);
         exit(1);
       }
     } else {
@@ -2832,12 +2832,12 @@ main(int argc, char *argv[])
     {truncate1, "truncate1"},
     {truncate2, "truncate2"},
     {truncate3, "truncate3"},
-    {reparent2, "reparent2"},
+    // {reparent2, "reparent2"},
     {pgbug, "pgbug" },
     {sbrkbugs, "sbrkbugs" },
     {badwrite, "badwrite" },
     {badarg, "badarg" },
-    {reparent, "reparent" },
+    // {reparent, "reparent" },
     {twochildren, "twochildren"},
     {forkfork, "forkfork"},
     // {forkforkfork, "forkforkfork"},
